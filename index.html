@@ -685,10 +685,11 @@ const enchData = {
         emoji: "⚔️",
         items: {
             "검": { emoji: "🗡️", groups: [
-                ["normal", ["골리앗 사냥꾼 VI", "생명력 흡수 VI", "기절 III", "선제공격 V", "내향성 V", "셜커 사냥꾼 III", "암전 IV", "카페인 충전 III", "닌자 V", "엔더 학살자 VI", "도축 V", "지혜 III", "마모 II", "일격 필살 V", "민첩함 II", "입체파 VII", "치명타 III", "혼란 IV", "광명 V", "출혈 VII", "휘몰아치는 칼날 III", "약탈 III", "발화 II", "밀치기 II"]],
+                ["normal", ["골리앗 사냥꾼 VI", "생명력 흡수 VI", "선제공격 V", "카페인 충전 III", "닌자 V", "엔더 학살자 VI", "도축 V", "지혜 III", "일격 필살 V", "민첩함 II", "입체파 VII", "치명타 III", "출혈 VII", "휘몰아치는 칼날 III", "약탈 III", "발화 II", "밀치기 II"]],
                 ["blue", ["날카로움 V", "강타 V", "살충 V"]],
                 ["green", ["영혼의 폭풍 II", "생명의 원천", "대지 진동 III", "공중 부양 II", "돌격 II"]],
-                ["cyan", ["네더 친화 IV", "엔드 친화력 IV"]],
+                ["cyan", ["네더 친화 IV"]],
+                ["debuff", [ "광명 V"]],
             ]},
             "철퇴": { emoji: "🔨", groups: [
                 ["normal", ["밀도 V", "파열 IV", "바람 폭발 III"]],
@@ -697,19 +698,19 @@ const enchData = {
                 ["blue", ["날카로움 V", "휩쓸기 III", "강타 V", "밀치기 II", "살충 V", "발화 II", "약탈 III"]],
             ]},
             "삼지창": { emoji: "🔱", groups: [
-                ["normal", ["골리앗 사냥꾼 VI", "기절 III", "전염 II", "지혜 III", "헤드샷 III", "찌르기 V", "충성 III", "집전 I"]],
+                ["normal", ["골리앗 사냥꾼 VI", "전염 II", "지혜 III", "헤드샷 III", "찌르기 V", "충성 III", "집전 I"]],
                 ["pink", ["급류 III", "충성 + 집전 (급류와 중첩 불가)"]],
-                ["cyan", ["네더 친화 IV", "엔드 친화력 IV"]],
+                ["cyan", ["네더 친화 IV"]],
             ]},
             "활": { emoji: "🏹", groups: [
-                ["normal", ["골리앗 사냥꾼 VI", "보스 사냥꾼 VIII", "기절 III", "점프샷 III", "동빙 III", "지혜 III", "삼중 사격", "출혈 상흔 VII", "섬광탄 VI", "토르 VI", "속사 VI", "헤드샷 III", "입체파 VII", "저격 IV", "공간 도약", "힘 V", "밀어치기 II", "화염"]],
+                ["normal", ["골리앗 사냥꾼 VI", "보스 사냥꾼 VIII", "점프샷 III", "동빙 III", "지혜 III", "삼중 사격", "출혈 상흔 VII", "토르 VI", "속사 VI", "헤드샷 III", "입체파 VII", "저격 IV", "공간 도약", "힘 V", "밀어치기 II", "화염"]],
                 ["pink", ["무한"]],
-                ["cyan", ["네더 친화 IV", "엔드 친화력 IV"]],
+                ["cyan", ["네더 친화 IV", ]],
             ]},
             "공용": { emoji: "⭐", groups: [
                 ["debuff", ["영속의 저주", "영혼 결속", "무해함의 저주"]],
                 ["pink", ["자가수리 III", "수선"]],
-                ["cyan", ["네더 친화 IV", "엔드 친화력 IV"]],
+                ["cyan", ["네더 친화 IV"]],
                 ["yellow", ["자동줍기"]],
             ]},
         }
@@ -802,7 +803,6 @@ const ENCH_INFO = {
     "영혼의폭풍": { name: "영혼의 폭풍", cat: "검/근접무기", max: "II", parts: "검", desc: "하트 3칸을 소모하여 25초 동안 공격 피해량이 250%만큼 증가합니다." },
     "생명의원천": { name: "생명의 원천", cat: "검/근접무기", max: "I", parts: "검,도끼,곡괭이,삽", desc: "사용 시 즉시 최대 체력까지 회복합니다." },
     "광명": { name: "광명", cat: "검/근접무기", max: "V", parts: "검", desc: "딥 다크 바이옴에서 워든에게 가하는 피해량이 20%만큼 증가합니다." },
-    "내향성": { name: "내향성", cat: "검/근접무기", max: "V", parts: "검", desc: "플레이어(유저)에게 가하는 근접 피해량이 12.50만큼 증가합니다." },
     "닌자": { name: "닌자", cat: "검/근접무기", max: "V", parts: "검", desc: "웅크린 상태에서 공격 시 +3의 추가 피해를 입힙니다." },
     "날카로움": { name: "날카로움", cat: "검/근접무기", max: "V", parts: "검, 도끼", desc: "레벨당 공격력 +1 증가. 강타·살충과 동시 부여 불가." },
     "강타": { name: "강타", cat: "검/근접무기", max: "V", parts: "검, 도끼", desc: "언데드 대상 레벨당 +2.5 피해. 날카로움·살충과 동시 부여 불가." },
@@ -812,18 +812,13 @@ const ENCH_INFO = {
     "약탈": { name: "약탈", cat: "검/근접무기", max: "III", parts: "검", desc: "레벨이 높을수록 일반 드롭 수량과 희귀 드롭 확률 증가." },
     "휩쓸기": { name: "휩쓸기", cat: "검/근접무기", max: "III", parts: "검", desc: "휩쓸기 공격 피해 증가 (Ⅰ=50%, Ⅱ=67%, Ⅲ=75%)." },
     "네더친화": { name: "네더 친화", cat: "검/근접무기", max: "IV", parts: "검,활,삼지창", desc: "네더 월드에 있을 때 적에게 가하는 피해량이 60%만큼 증가합니다." },
-    "엔드친화력": { name: "엔드 친화력", cat: "검/근접무기", max: "IV", parts: "검", desc: "엔드 차원에서 가하는 피해량이 60%만큼 증가합니다." },
     "엔더학살자": { name: "엔더 학살자", cat: "검/근접무기", max: "VI", parts: "검,도끼", desc: "엔드 계열 몬스터에게 가하는 근접 피해량이 4만큼 증가합니다." },
     "도축": { name: "도축", cat: "검/근접무기", max: "V", parts: "검", desc: "비선공 몹(동물/주민 등)에게 가하는 근접 피해량이 12.50만큼 증가합니다." },
-    "마모": { name: "마모", cat: "검/근접무기", max: "II", parts: "검,도끼", desc: "상대방의 갑옷 내구도에 2만큼 피해를 줍니다." },
     "무해함의저주": { name: "무해함의 저주", cat: "검/근접무기", max: "-", parts: "검", desc: "공격 시 15%의 확률로 대미지가 들어가지 않습니다." },
     "민첩함": { name: "민첩함", cat: "검/근접무기", max: "II", parts: "검", desc: "공격 속도가 20%만큼 증가합니다." },
     "골리앗사냥꾼": { name: "골리앗 사냥꾼", cat: "무기 공용", max: "VI", parts: "검,활,쇠뇌,삼지창", desc: "상대방의 체력이 자신보다 많을수록 가하는 피해량이 배수마다 1.10배씩 증가합니다. (최대 4배)" },
-    "기절": { name: "기절", cat: "무기 공용", max: "III", parts: "검,활,쇠뇌,삼지창", desc: "공격 시 10%의 확률로 적을 2초 동안 기절시켜 무력화합니다." },
     "생명력흡수": { name: "생명력 흡수", cat: "검/근접무기", max: "VI", parts: "검", desc: "가한 피해량의 60%만큼 체력을 회복합니다." },
     "선제공격": { name: "선제공격", cat: "검/근접무기", max: "V", parts: "검,도끼", desc: "체력이 가득 찬 적에게 가하는 피해량이 130%만큼 증가합니다." },
-    "셜커사냥꾼": { name: "셜커 사냥꾼", cat: "검/근접무기", max: "III", parts: "검", desc: "셜커 처치 시 셜커 껍질이 드롭될 확률이 215%만큼 증가합니다." },
-    "암전": { name: "암전", cat: "검/근접무기", max: "IV", parts: "검", desc: "10%의 확률로 상대방에게 6초 동안 어둠 디버프를 부여합니다." },
     "영속의저주": { name: "영속의 저주", cat: "검/근접무기", max: "-", parts: "전체", desc: "모루를 사용하여 이 아이템을 수정하거나 강화할 수 없습니다." },
     "영혼결속": { name: "영혼 결속", cat: "검/근접무기", max: "I", parts: "전체", desc: "사망하더라도 이 아이템을 드롭하지 않고 그대로 유지합니다." },
     "일격필살": { name: "일격 필살", cat: "검/근접무기", max: "V", parts: "검,도끼", desc: "상대방이 잃은 체력 1%당 가하는 피해량이 1%만큼 증가합니다." },
@@ -833,7 +828,6 @@ const ENCH_INFO = {
     "출혈": { name: "출혈", cat: "검/근접무기", max: "VII", parts: "검", desc: "10.50%의 확률로 상대방에게 출혈을 일으켜 지속적인 피해를 줍니다." },
     "치명타": { name: "치명타", cat: "검/근접무기", max: "III", parts: "검,도끼", desc: "치명타(크리티컬)로 가하는 피해량이 30%만큼 증가합니다." },
     "카페인충전": { name: "카페인 충전", cat: "검/근접무기", max: "III", parts: "검", desc: "질주하는 동안 공격 속도가 15%만큼 증가합니다." },
-    "혼란": { name: "혼란", cat: "검/근접무기", max: "IV", parts: "검", desc: "8%의 확률로 상대방의 핫바 아이템 위치를 뒤섞습니다." },
     "순풍": { name: "순풍", cat: "삼지창", max: "III", parts: "삼지창", desc: "이 아이템을 손에 들고 있을 때 이동 속도가 24%만큼 증가합니다." },
     "전염": { name: "전염", cat: "삼지창", max: "II", parts: "삼지창", desc: "10%의 확률로 삼지창이 떨어진 자리에 독구름을 생성합니다." },
     "헤드샷": { name: "헤드샷", cat: "삼지창", max: "III", parts: "활,쇠뇌,삼지창", desc: "적에게 헤드샷을 적중시켰을 때 가하는 피해량이 30%만큼 증가합니다." },
@@ -852,7 +846,6 @@ const ENCH_INFO = {
     "동빙": { name: "동빙", cat: "원거리 무기 (활/쇠뇌)", max: "III", parts: "활", desc: "9%의 확률로 상대방을 5초 동안 동결 상태로 만듭니다." },
     "보스사냥꾼": { name: "보스 사냥꾼", cat: "원거리 무기 (활/쇠뇌)", max: "VIII", parts: "활,쇠뇌", desc: "보스를 대상으로 가하는 피해량이 80%만큼 증가합니다." },
     "삼중사격": { name: "삼중 사격", cat: "원거리 무기 (활/쇠뇌)", max: "-", parts: "활", desc: "화살을 발사할 때 1발 대신 3발의 화살을 동시에 발사합니다." },
-    "섬광탄": { name: "섬광탄", cat: "원거리 무기 (활/쇠뇌)", max: "VI", parts: "활,쇠뇌", desc: "6%의 확률로 상대방에게 실명 디버프를 부여합니다." },
     "속사": { name: "속사", cat: "원거리 무기 (활/쇠뇌)", max: "VI", parts: "활", desc: "활을 10% 장력까지만 당겨도 최대 속도로 화살을 발사합니다." },
     "저격": { name: "저격", cat: "원거리 무기 (활/쇠뇌)", max: "IV", parts: "활,쇠뇌", desc: "화살이 9블록 날아갈 때마다 가하는 피해량이 4%만큼 증가합니다." },
     "점프샷": { name: "점프샷", cat: "원거리 무기 (활/쇠뇌)", max: "III", parts: "활", desc: "공중에 떠 있는 상태에서 가하는 원거리 피해량이 30%만큼 증가합니다." },
@@ -987,12 +980,6 @@ const WEAPON_NAMES = Object.keys(weaponsData);
 
 const NAV = [
   { id:"home", label:"메인 페이지", icon:"🏠", single:true },
-  { id:"guide", label:"게임 안내", icon:"📗", children:[
-      { id:"guide-intro",  label:"서버 소개" },
-      { id:"guide-start",  label:"시작 가이드" },
-      { id:"guide-system", label:"기본 시스템" },
-      { id:"guide-growth", label:"성장 가이드" },
-  ]},
   { id:"item", label:"아이템 정보", icon:"🗡️", children:[
       { id:"item-weapon", label:"무기",        page:"weapons" },
       { id:"item-acc",    label:"장신구" },
@@ -1897,7 +1884,9 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
     "심연의 파편": "data:image/webp;base64,UklGRpACAABXRUJQVlA4TIMCAAAvHUAHENfkOJIkR6numbtDaxMwgTeB/8ZggNp2A44kSYqkiIJlBm31/f/jTrvtcuS2kSNZrqqZzTmd9v9PzF0M27YNQ2f/n7wqQIECBgCAAgYAPdSAMYKQlmhMaQeViQaGEoAwIgQQlGFCEEFCg4HVMsMP+6/CGAn1UmKGhomaCKPmpBO+obCg7QbRBq47J0N+QKTamGhKrwMfXNWL+7QREkN+4pj8O5ub+XrShyXdL1UPklnlf43riiKbT9vVYZFPy+fIu30fWx1nq0MykWSv/v3P9/w9OuxOJ2CgsBcEISyiBoRiPNtoqbEMglQGKwABIQEI0RR4/73dP8+myiUEg4VTiOAVXK0joVUkhVglaMjN+6VaqE2adwurSsrZ8bIjQfLmjJuqeFNdbzuTNWVzV8fTtu7p7HidNRKTYoAtAGDZKM12s21bZ9u2bdu2bX+t0x3ek4j+K3LbtmGStqfdV7z+pZgID3WNw9G+fi8Lx+DtmBTQh3cf3mHaNTB/SYCFvqWBB9AlW6DojXAHXvLFdC1QgJbZfYB7YtwrI5SfSeuKr55AYllSy4ifSY/tadtZmj/XkuJgKgkNbZLz6IKS7NjyFMcBROGYKEmbJKekvrgwyn4A0Y6m+JmBonpcnWe/UUCMbh7fs7amubEyN5KhIK/INDz28auaGqqzgrz3QiOG9L70qrqsOPEmJK86PTKnWemurIo48elHnVEo0+xpVponS7zTCYfAGUQ08IRNyB4r5D3Uwk7+EHKqSXiyxu69Y8VrYevLqMD6/Ug0CUn38TNrxswg/RdvRZKt4Dsa0QbA3cPjLLM6g2Ukqi2A+JkR8lQmV7jMIotcTFYTAH7950EAAA==",
     "성공의 강화석": "data:image/webp;base64,UklGRtIAAABXRUJQVlA4TMUAAAAvD8ADEG+gqJEkZXklwN1J2Of5V0Y21ESSFF30CrjwBUyQ498JEkBtJKkNBbiMnKEC+u+JEOQ1/wEA/v/lKPONFptQTrOwtDD4fvq6VnNY7IfgtNq2ZXl+JVv6Ep7fIXCXRrTfK+fPOCuwwS8ZGcBlApvGZojo/wTg38bQtj/Wz/c7ALR9z3sEQDvPC+4kTBTGRh/HIBs5EiZ3hS0diTQrGFl6Eml6cD/tgLRi5p7hQdrqUunzoEImo6QBdBUlzgOIxuP4GwA=",
     "할인의 강화석": "data:image/webp;base64,UklGRsoAAABXRUJQVlA4TL0AAAAvD8ADEG+gNpKt5H+clP57csmcFkihDbWRpDa4mP5bogVGsQrwXlIUAGTET/8eOihzW4F78x8A4P//ADKHcREjutAGkTZNyg7ywlB1unY0n+Cm1ra1eccwlGFDA0xjHJQ9dCQLEVBmpjGnG34SspbcpNEQ0f8JgN3lWdcZALm4qjLAslguexmgUC6raQ5UsWqMVLVT5aiv1d0WXdX7J9jZgfrGtVnlQLGQdnkBFDOuExEwR6PRC4D5+/1E2AUA",
-    "하급 소켓석": "data:image/webp;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAACgBAMAAAB54XoeAAAAIVBMVEUAAAAgGAooHgs3KRBJNhVZQxloTh5rUR91WCGGZSaJZyeeFUrKAAAAAXRSTlMAQObYZgAAAJlJREFUeNrt1QcRg0AUhsGzgAUsxAIWYiEWsICFWIjKzP/Se53KfgIWrjdJf29xDAgEPrbWx04qEAi8tsY0JSAQ+Ng6NaRVakAgsEsFTqmsZRpTn4BA4JlaDelK7RIQCNx1epX6VBYQCLy2Nqmsq+PY0qxBIPD6wLUHzQMEAo0WCPzTqwQEAv974IBALwkQCCzmZAGBQEmftQUZ5LJ4NcKiAQAAAABJRU5ErkJggg==",
+    "하급 소켓석": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAB0klEQVQ4jZWTv2sTYRjHP08M1gaNLdJEwVzNdbpICsng0My5yyZOgoJDFfwXHEWX+j+42KHi5tKC7VyHCopa4yCN1BQaf4CliLUKfh3uh5drB32Gu5d738/L9/k+34NsmYUvLHqGKwws2kvXEVLHMTBFdyQfouUhZcm2ieSYFF5nQhoGnGu3dLzu8WXlCYbxcXnB8gYgkIWgACFIwSX/qgwxVr/AmfoMv3p9dntdAPKKBSgCMxIrjUBHpzzAOD3dQhIobkrkUAZLmVhpBCo7LuPbWxRcDwOO1YqMuh4jZSdU8NdEEaoRGDjNtiYqLvstH5P4vtFl5HLn30ycbAYqTVYZv3mb3uP7AIwNthLq0+YG/ecrJiBnRDzCAKfpa8IZhuMx/2z5fD5xkv6LZYsgcik/qDTaKjluxo5Q4X4rYGf9GZvzc5Y2MclIyb+iolsDMwpVj73eW+LGCq7H1zdr9OfvmTLhyKUlYjB18Tp777txX1Qv3WBnfY0PD+YOwGaQjyWeagecne6w/XKVQvU8mCjXZxisLoay01SUVgmSJIIYrRU553X40d0FYPB0iVd3Zu2wMUfxHU7iu4ePwnB8+w3A67uzyZhju4SwNHSg/vN3/gPuM7K8kRzpdAAAAABJRU5ErkJggg==",
+    "중급 소켓석": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACE0lEQVQ4jZWTMWwScRSHv4ekwmEtKiloLNXDoT0ajJiYyA5xc7Rx0KSLLi5OmrhUF90dTNQYF+ymLmqoq01cNEZLJ7BamlKPhBYbIGJ8DnccUFz8D3eXu/e997vfew92HxHnhrhX5wkBcb8NhOOFKyog2nurKg6oysSlG7pvZora24IH24t58bsRqEspiniZlPHsRQUIz5whlsrw6+s6qPKzvIKq4BeHQkVdHU4SFOLpnI6YFiAcTmVchYqRsOi0dgDwafe3FFTVkxdP5zQ6aRKurmMkplERAtYYQdOCPsiHKj3MMTGezmnQCHHgyjydTI5WqUjAGqWHKd1aQyZOnsppIGRw7NYDSs8feyaOVSsANGpVANrNJmsfC9K1GXAqj08c59DVecovH6IKhml54kaWCiDCj28l1j4sigJ7un2On85pNJ6gUavSDh+kU7cB6NRtOvUav+s27dH92JsVNt698IbDp4Jb2WTb3vjHTDkKg4kkjfIKm4W8DJnYikTYih0FIHD+Ms1y0XFFhZBpkbx5na0v77ELedltoq9nIkw9y9MqLSMCRmIaw7SInsyw+miB70/vSn+buwr9IESyWU7MXmB14Q1B03LTKbHUWSqfXlO8PScDlLpDpziTKAr3j+zl2uw5WsvbXmx16ZUL9++Kus1XUEEQIXnviSfOv/PHS/D5zpzo8IY5CqXnw+D5z3X+Cxk84J2A9/KWAAAAAElFTkSuQmCC",
+    "상급 소켓석": "data:image/gif;base64,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",
   };
 
   /* ── 던전 몬스터 데이터 ── */
@@ -1914,7 +1903,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
       { nm:"정예 스켈레톤",   hp:1500, drops:[["스켈레톤의 혈석","2%"]], img:MOB_IMG["정예 스켈레톤"] },
     ]},
     { name:"제3던전", mobs:[
-      { nm:"크롬 병사",       hp:2200,  drops:[["기사의 군번줄","2%"], ["하급 소켓석","0.3%"]], img:MOB_IMG["크롬 병사"] },
+      { nm:"크롬 병사",       hp:2200,  drops:[["하급 소켓석","0.3%"], ["기사의 군번줄","2%"]], img:MOB_IMG["크롬 병사"] },
       { nm:"크로메드 팔라딘", hp:40000, drops:[["팔라딘의 증표","20%"]], img:MOB_IMG["크로메드 팔라딘"] },
     ]},
     { name:"제4던전", mobs:[
