@@ -1042,7 +1042,7 @@ const POPULAR = [
   { ico:"✨", nm:"인챈트 도감", sub:"104종",      href:"#/p/ench-무기" },
   { ico:"🍳", nm:"요리 도감",   sub:"13종",       href:"#/p/cook-판매용 요리" },
   { ico:"📖", nm:"인챈트 원리", sub:"중첩 규칙",  href:"#/p/ench-rule" },
-  { ico:"👾", nm:"보스 몬스터", sub:"준비 중",    href:"#/p/mob-boss" },
+  { ico:"👾", nm:"보스 몬스터", sub:"쇼발 몇마리에요?",    href:"#/p/mob-boss" },
 ];
 const UPDATES = [
   { tag:"무기",   txt:"무기 제작 재료 개정판 반영 (공명석 추가)", date:"2026.08.14" },
@@ -1898,7 +1898,7 @@ render();
 <!-- ════════ [추가] 던전 몬스터 페이지 + 사이드바 소분류 (기존 코드 무수정 · 추가 전용) ════════ -->
 <style id="mob-area-style">
 /* 사이드바 3단계(소분류) — 기존 .nav-sub / .nav-item 스타일 위에 들여쓰기만 추가 */
-.mobd-nav{padding:2px 0 6px 14px;}
+.mobd-nav{padding:2px 0 6px 2px;}
 .mobd-item{position:relative;font-size:12.5px;}
 .mobd-item::before{
   content:"";position:absolute;left:1px;top:50%;
@@ -1980,28 +1980,28 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
 
   /* ── 던전 몬스터 데이터 ── */
   var DUNGEONS = [
-    { name:"제1던전", mobs:[
+    { name:"[제 1던전] 버섯 동굴", mobs:[
       { nm:"아기 머쉬", hp:150, drops:[], img:MOB_IMG["아기 머쉬"] },
       { nm:"알파 머쉬", hp:250, drops:[], img:MOB_IMG["알파 머쉬"] },
       { nm:"엘더 머쉬", hp:400, drops:[["거대 버섯 곤봉","2%"]], img:MOB_IMG["엘더 머쉬"] }
     ]},
-    { name:"제2던전", mobs:[
+    { name:"[제 2던전] 봉인된 지하묘지", mobs:[
       { nm:"근접 스켈레톤",   hp:1100, drops:[["녹슨 검날","2%"]],       img:MOB_IMG["근접 스켈레톤"] },
       { nm:"스켈레톤 궁수",   hp:1000, drops:[["녹슨 단검","2%"]],       img:MOB_IMG["스켈레톤 궁수"] },
       { nm:"스켈레톤 마법사", hp:800, drops:[],                          img:MOB_IMG["스켈레톤 마법사"] },
       { nm:"정예 스켈레톤",   hp:1500, drops:[["스켈레톤의 혈석","2%"]], img:MOB_IMG["정예 스켈레톤"] },
     ]},
-    { name:"제3던전", mobs:[
+    { name:"[제 3던전] 오래된 크롬 요새", mobs:[
       { nm:"크롬 병사",       hp:2200,  drops:[["하급 소켓석","0.3%"], ["기사의 군번줄","2%"]], img:MOB_IMG["크롬 병사"] },
       { nm:"크로메드 팔라딘", hp:40000, drops:[["팔라딘의 증표","20%"]], img:MOB_IMG["크로메드 팔라딘"] },
     ]},
-    { name:"제4던전", mobs:[
+    { name:"[제 4던전] 불타는 성지", mobs:[
       { nm:"플레일 기사",   hp:2700,  drops:[["중급 소켓석","0.3%"], ["기사의 유산","2%"]],    img:MOB_IMG["플레일 기사"] },
       { nm:"워해머 기사",   hp:2700,  drops:[["중급 소켓석","0.3%"]],    img:MOB_IMG["워해머 기사"] },
       { nm:"할버드 기사",   hp:2700,  drops:[["중급 소켓석","0.3%"]],    img:MOB_IMG["할버드 기사"] },
       { nm:"지옥불 워리어", hp:50000, drops:[["군주의 심핵","20%"]],   img:MOB_IMG["지옥불 워리어"] },
     ]},
-    { name:"제5던전", mobs:[
+    { name:"[제 5던전] 말라버린 정령의 숲", mobs:[
       { nm:"사악한 늑대", hp:4000, drops:[["심연의 파편","2%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["사악한 늑대"] },
       { nm:"부패한 꽃",   hp:4000, drops:[["심연의 파편","2%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["부패한 꽃"] },
       { nm:"비탄의 실프", hp:4000, drops:[["심연의 파편","2%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["비탄의 실프"] },
