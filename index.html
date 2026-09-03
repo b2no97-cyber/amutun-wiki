@@ -659,6 +659,31 @@ const weaponsData = {
 };
 
 /* 분류별 아이콘 (무기 제작표) */
+/* ═══════════════════════════════════════════════
+   [2-1] 아이템 정보 → 장신구 / 소켓
+   기존 무기 데이터 구조를 그대로 확장한다.
+   ═══════════════════════════════════════════════ */
+const ACC_IMG = {
+  "루비 장신구": "data:png/webp;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAByklEQVQ4jZWTMW8TQRCFvwmHEBgqwEQ0xmAhEV0VOZfuCK4JEmkDDTURDT3/waRHAteRANEmsimQYgTNxU2iHAKa2AoRUqDB0qPYXftw3DDF3Wp33s7cN+9gMszcC/NPt8LA/FkxTlFIx8Dk7xht+OWUsNGxKSioL6/K/F73deuk1gwkDENAZAACmUIfrK3fB6Ap9PFNy/DpMjDJ1xLI3I0TZfTy64Yaj57q1bcN1e89FBb6HfMJOCIk5JW1ZElXS5VR0otnH3iyvkITqfu2ZaFtIYJo5iRE0T6MwMS1xylbhxGzaY368gNJodQYx0yAKDP2tttcuHsdZJybO0/z5h2Q+NU7ZjatEccNFT9DskBA3FhcUiVe4OytEgDlxjz9zU/87h0DRmmuxM93+xwNvpPtbDqMMiKFKQokeQF86XWorqUc8Nl16I0lgILoH4jD/T6Y8WOQcyVZJH/+3k9I/Mn7GEY5mQeGyrKOuSlMgWgGw/wAyfnsaJBzOUmmeioKEHe7bc7E6chl3hJE1TIa5K47r8qyjofIGKKC38ajUhynoRYXL1WQwelqmX53myzrmOQtZQUOky3KA4vj2y7Fd5jttE3TRP/7O/8FwNHEkx3rbPAAAAAASUVORK5CYII=",
+  "토파즈 장신구": "",
+  "에메랄드 장신구": "",
+  "아쿠아마린 장신구": ""
+};
+
+const accessoryData = {
+  "루비 장신구": { effect:"스킬 공격력", stages:["1%","1.5%","2%","2.5%","3%","3.5%","4%","4.5%","5%","5.5%","6%"], img:ACC_IMG["루비 장신구"] },
+  "토파즈 장신구": { effect:"방어력", stages:["0.5%","0.75%","1%","1.25%","1.5%","1.75%","2%","2.25%","2.5%","2.75%","3%"], img:ACC_IMG["토파즈 장신구"] },
+  "에메랄드 장신구": { effect:"최대 체력", stages:["3","3.3","3.6","3.9","4.2","4.5","4.8","5.1","5.4","5.7","6"], img:ACC_IMG["에메랄드 장신구"] },
+  "아쿠아마린 장신구": { effect:"치명타확률", stages:["0.125%","0.4%","0.6%","0.8%","1.0%","1.2%","1.4%","1.6%","1.8%","2.0%","2.2%"], img:ACC_IMG["아쿠아마린 장신구"] }
+};
+const ACCESSORY_NAMES = Object.keys(accessoryData);
+
+const SOCKET_DATA = [
+  { nm:"하급 소켓석", options:["스킬 치명타 확률: 1~3%","스킬 치명타 피해: 1~10%","스킬 피해: 1~5%"] },
+  { nm:"중급 소켓석", options:["스킬 치명타 확률: 3~5%","스킬 치명타 피해: 5~20%","스킬 피해: 5~10%"] },
+  { nm:"상급 소켓석", options:["스킬 치명타 확률: 5~8%","스킬 치명타 피해: 10~30%","스킬 피해: 6~15%"] }
+];
+
 const CATEGORY_ICON = {
     "재료(노멀)": "📦",
     "재료(광산)": "⛏️",
@@ -982,8 +1007,8 @@ const NAV = [
   { id:"home", label:"메인 페이지", icon:"🏠", single:true },
   { id:"item", label:"아이템 정보", icon:"🗡️", children:[
       { id:"item-weapon", label:"무기",        page:"weapons" },
-      { id:"item-acc",    label:"장신구" },
-      { id:"item-socket", label:"소켓" },
+      { id:"item-acc",    label:"장신구",      page:"accessories" },
+      { id:"item-socket", label:"소켓",        page:"sockets" },
   ]},
   { id:"ench", label:"인챈트 정보", icon:"✨", children:[
       { id:"ench-rule",   label:"인챈트 원리", page:"enchRule" },
@@ -1112,10 +1137,14 @@ function parseHash(){
   const h = decodeURIComponent(location.hash.replace(/^#\/?/,"")) || "home";
   const [head, ...rest] = h.split("/");
   if(head === "home")   return { page:"home", navId:"home" };
-  if(head === "p")      { const id = rest.join("/"); const f = findNav(id);
-                          if(!f) return { page:"home", navId:"home" };
-                          const c = f.child || f.top;
-                          return { page:c.page || "empty", arg:c.arg || null, navId:id }; }
+  if(head === "p")      {
+    if(rest[0] === "item-acc" && rest.length > 1)
+      return { page:"accessory", arg:rest.slice(1).join("/"), navId:"item-acc" };
+    const id = rest.join("/"); const f = findNav(id);
+    if(!f) return { page:"home", navId:"home" };
+    const c = f.child || f.top;
+    return { page:c.page || "empty", arg:c.arg || null, navId:id };
+  }
   if(head === "weapon") return { page:"weapon", arg:rest.join("/"), navId:"item-weapon" };
   if(head === "search") return { page:"search", arg:rest.join("/"), navId:null };
   return { page:"home", navId:"home" };
@@ -1239,6 +1268,66 @@ function pageWeapon(){
   </div>`;
 }
 
+function pageAccessories(){
+  return `${crumb()}
+  <h1 class="page-title">장신구</h1>
+  <p class="page-desc">장신구의 종류와 강화 수치를 확인할 수 있습니다.</p>
+  <!-- style 속성을 직접 추가하여 한 줄에 4개씩(repeat(4, 1fr)) 강제 배치합니다 -->
+  <div class="list" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+    ${ACCESSORY_NAMES.map(n=>`<a class="list-item" href="#/p/item-acc/${encodeURIComponent(n)}" style="box-sizing: border-box;">
+      <div class="nm">${esc(n)}</div>
+      <div class="mt">효과 : ${esc(accessoryData[n].effect)}</div>
+      <div class="mt" style="margin-top:6px">강화 : 0~10강 · 수치 : ${esc(accessoryData[n].stages[0])}~${esc(accessoryData[n].stages[10])}</div>
+    </a>`).join("")}
+  </div>`;
+}
+function pageAccessory(){
+  const name = route.arg;
+  const a = accessoryData[name];
+  if(!a) return pageAccessories();
+  const photo = a.img
+    ? `<img src="${esc(a.img)}" alt="${esc(name)}" style="width:180px;height:180px;object-fit:contain;display:block;margin:0 auto 18px;">`
+    : `<div style="font-size:72px;line-height:1;text-align:center;margin-bottom:18px;">💎</div>`;
+  return `${crumb()}
+  <a class="btn-back" href="#/p/item-acc">← 장신구 목록으로</a>
+  <h1 class="page-title">${esc(name)}</h1>
+  <p class="page-desc">강화 단계별 효과를 한눈에 확인할 수 있습니다.</p>
+  <div class="accessory-detail-grid" style="display:grid;grid-template-columns:minmax(220px,0.85fr) minmax(320px,1.15fr);gap:20px;align-items:stretch;">
+    <div class="detail" style="margin:0;text-align:center;display:flex;flex-direction:column;justify-content:center;">
+      ${photo}
+      <h3 class="section-h" style="margin-top:0">${esc(name)}</h3>
+      <dl style="text-align:left;margin:14px 0 0;">
+        <dt>효과</dt><dd>${esc(a.effect)} 증가</dd>
+        <dt>강화</dt><dd>0~10강</dd>
+        <dt>수치</dt><dd>${esc(a.stages[0])}~${esc(a.stages[10])}</dd>
+      </dl>
+    </div>
+    <div class="section" style="margin:0;">
+      <h3 class="section-h">강화당 증가 수치</h3>
+      <table class="tbl"><thead><tr><th>강화</th><th>효과 수치</th></tr></thead>
+      <tbody>${a.stages.map((v,i)=>`<tr><th>${i}강</th><td>${esc(v)}</td></tr>`).join("")}</tbody></table>
+    </div>
+  </div>`;
+}
+
+function pageSockets(){
+  return `${crumb()}
+  <h1 class="page-title">소켓</h1>
+  <p class="page-desc">소켓석의 종류와 옵션을 한눈에 확인할 수 있습니다.</p>
+  <div class="socket-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
+    ${SOCKET_DATA.map(s=>{
+      const img = (typeof window.DROP_IMG!=="undefined" && window.DROP_IMG[s.nm])
+        ? `<img src="${esc(window.DROP_IMG[s.nm])}" alt="${esc(s.nm)}" style="width:86px;height:86px;object-fit:contain;display:block;margin:0 auto 14px;">`
+        : `<div style="font-size:54px;text-align:center;line-height:1;margin-bottom:14px;">💠</div>`;
+      return `<div class="detail" style="margin:0;text-align:center;">
+        ${img}
+        <h3 class="section-h" style="margin-top:0">${esc(s.nm)}</h3>
+        <div style="text-align:left;margin-top:14px;">${s.options.map(o=>`<div style="padding:8px 0;border-bottom:1px solid var(--line);">• ${esc(o)}</div>`).join("")}</div>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
 function pageEnch(){
   const cat = enchData[route.arg];
   if(!cat) return pageHome();
@@ -1355,7 +1444,7 @@ function pageSearch(){
     : `<div class="empty"><strong>결과가 없습니다</strong>다른 검색어로 다시 시도해 보세요.</div>`}`;
 }
 
-const PAGES = { home:pageHome, weapons:pageWeapons, weapon:pageWeapon, ench:pageEnch, enchRule:pageEnchRule, cook:pageCook, search:pageSearch, empty:pageEmpty };
+const PAGES = { home:pageHome, weapons:pageWeapons, weapon:pageWeapon, accessories:pageAccessories, accessory:pageAccessory, sockets:pageSockets, ench:pageEnch, enchRule:pageEnchRule, cook:pageCook, search:pageSearch, empty:pageEmpty };
 
 function render(){
   renderSidebar();
@@ -1872,7 +1961,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
   };
 
   /* ── 드롭 아이템 아이콘 ── */
-  var DROP_IMG = {
+  var DROP_IMG = window.DROP_IMG = {
     "거대 버섯 곤봉": "data:image/webp;base64,UklGRq4BAABXRUJQVlA4TKEBAAAvF8AFEAfjKpIkxao6EnD+5cHDv2NsG44bSVKkrIHdo9f+j/z36wzgGyy3kSQpUvXM3ennv3GkwTPj9PzH1K8fSgA2wb9s7vkVl4DPcxbswTKtGK39ubMtIc+HbZXl+3TUjxjl9+wef91jgMvln/33EdszMb9fxv/imX/r+2v7/Fy1nOXnLD97KRpXteF+hazaNUySCGMoTkEAEoCgIEiwYEZBIEpkZUtKOCBYZGwBhAgwnbQVM5ikcecZhpHyFxsG59TUlghHcR+0FAoCFIIhgCDTKEJSRRrt1itjckCwrb2Q1LZtjNEY2/a0zf2vYlR/BgsI/mQi+i8gSQrPTH/sK0Qk6nxkqx3sEnR2rnfV5fYa2GVv3OLcYNkvAF3IcVvYq3Z/qQDojQeIWGXlBwHQdf95Q7HyfVCz687E6hxKrLxb0dQ0K6VUv7J1t7mszehoCyEqzB3ShDunL21h8r6yOwDGPHs3be/xxvPhEgKH2cktLT0dgdAXTvH1x8AqLJKIpt+CxZWcYrIoQfnsPBI9l2VkZnNzZGYyC1OyFgX+hREA",
     "스켈레톤의 혈석": "data:image/webp;base64,UklGRgABAABXRUJQVlA4TPQAAAAvE8AEELegKJKk5vIBCvIL/7Z4IyDZYBgAYJHZdnVK/79kKY5kG/r7hrP8c3OXgK/mP1KMyszHACT4pakQj37xGmhj9pt7PLlt5gwAhJbs6zqqrXaIILaKuIjRxeSLwWEk2UqEfJz3j3f28w8VlwhmI/pvMGmbzI3dkh6ftiPjpEAETNnx9iGq41jTD2OwF2eGMQJHSodiiIa6V2w3lVaXFH1EBmzZpA0RDVrbVns9FaoW/e6EyWv/VnwX0G4r1Uz+5b9QjyutrGze/pfk39rrtKk0lufzo5bXeQIgLwPS7Buos8SeAvoEWP5DkpQtewjISDcG",
     "녹슨 검날": "data:image/webp;base64,UklGRj4BAABXRUJQVlA4TDEBAAAvE8AEEC/CKJIkRd1Du4f+tZyrey2vDgZtIzma7Fwn8Py5PJwH0H8ZR5Lihl04efNU/oEoFwXhDTD/cW/LVVtalPSep/OuZlSkts7RSrjpzjtP2a3sXarkrYCILgg4AQEEqAQoqmEARZQAIBBIgETJirHo0Y4IgUCiBKioA6IT/uTWgUAsiPJikMYMhCJCWjMkMRVLkqBvX5WHNmbfn//Y9Nu181Pv33oDMszXrfticGDbttnESW3biFPbnf+Y9MIBvBfRf4Vt2zYyspP2j3eUtIl7YGfHXFmvLF1xtYWGA9mFrWPiSHCxqWOQq80cFccvF5wlqnVq9vAJMcF2tUHNypWDel3KUrFwvjOADTu1EqUvDxaatjBTLqVuPPhCf77P526iy1+n4yEhvV2V/FgoIgA=",
@@ -1939,7 +2028,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
     var 기존 = sb.querySelector(".mobd-nav");
     if(!여기인가() && !기존) return;
     var 키 = 여기인가() ? ("on|" + 던전) : "off";
-    if(기존 && 기존.getAttribute("data-mobd-key") === 키) return;
+    if(기존 && 기존.getAttribute("data-mobd-key") === 키) return; 
 
     보강중 = true;
     try{
@@ -1996,7 +2085,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
       + '<div class="tabs">' + 목록 + '</div>'
       + (고른
           ? '<div class="section">'
-          +   '<h3 class="section-h">👾 ' + esc(고른.nm) + '</h3>'
+          +   '<h3 class="section-h">💀👾 ' + esc(고른.nm) + '</h3>'
           +   상세(고른)
           + '</div>'
           : '');
@@ -2049,6 +2138,94 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
     new MutationObserver(function(){ 사이드바(); }).observe(s0, { childList:true });
   }
 
+  그리기();
+})();
+</script>
+
+<!-- ════════ [추가] 보스 몬스터 페이지 (던전 몬스터 구조 복제) ════════ -->
+<style id="boss-area-style">
+.boss-list{display:grid;gap:12px;}
+.boss-card{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px;align-items:start;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:20px;}
+.boss-pic{border:0;background:transparent;aspect-ratio:1/1;display:grid;place-items:center;overflow:hidden;}
+.boss-pic img{width:100%;height:100%;object-fit:contain;display:block;}
+.boss-noimg{font-size:44px;line-height:1;opacity:.3;}
+.boss-dl{display:grid;grid-template-columns:96px minmax(0,1fr);gap:0;margin:0;font-size:13px;}
+.boss-dl dt{color:var(--ink-soft);font-weight:600;padding:11px 0;border-bottom:1px solid var(--line);}
+.boss-dl dd{margin:0;padding:11px 0;border-bottom:1px solid var(--line);}
+.boss-hp{font-variant-numeric:tabular-nums;font-weight:600;}
+.boss-none{color:var(--ink-soft);}
+.boss-ico{width:18px;height:18px;display:block;image-rendering:pixelated;}
+@media (max-width:640px){.boss-card{grid-template-columns:1fr;gap:16px;}.boss-pic{max-width:230px;margin:0 auto;}}
+</style>
+<script id="boss-area-script">
+(function(){
+  /* ── 보스 이미지: 나중에 Base64/data URI를 이름별로 교체 ── */
+  var BOSS_IMG = {
+    /* 예:
+    "아기 머쉬 1": "data:image/webp;base64,...",
+    "아기 머쉬 2": "data:image/webp;base64,...",
+    */
+  };
+
+  var BOSSDROP_IMG = {
+  "녹슨 검날": "data:image/webp;base64,UklGRj4BAABXRUJQVlA4TDEBAAAvE8AEEC/CKJIkRd1Du4f+tZyrey2vDgZtIzma7Fwn8Py5PJwH0H8ZR5Lihl04efNU/oEoFwXhDTD/cW/LVVtalPSep/OuZlSkts7RSrjpzjtP2a3sXarkrYCILgg4AQEEqAQoqmEARZQAIBBIgETJirHo0Y4IgUCiBKioA6IT/uTWgUAsiPJikMYMhCJCWjMkMRVLkqBvX5WHNmbfn//Y9Nu181Pv33oDMszXrfticGDbttnESW3biFPbnf+Y9MIBvBfRf4Vt2zYyspP2j3eUtIl7YGfHXFmvLF1xtYWGA9mFrWPiSHCxqWOQq80cFccvF5wlqnVq9vAJMcF2tUHNypWDel3KUrFwvjOADTu1EqUvDxaatjBTLqVuPPhCf77P526iy1+n4yEhvV2V/FgoIgA=",
+  "보스 드롭 아이템 2": "BASE64"
+};
+
+  /* ── 던전별 보스 목록 ──
+     같은 던전에 보스가 여러 마리 있으면 한 탭 안에 함께 표시합니다. */
+  var BOSS_DUNGEONS = [
+    { name:"울부짖는 칼바람 협곡", bosses:[
+      { nm:"아기 머쉬 1", hp:null, drops:[], img:BOSS_IMG["아기 머쉬 1"] },
+      { nm:"아기 머쉬 2", hp:null, drops:[], img:BOSS_IMG["아기 머쉬 2"] }
+    ]},
+    { name:"제2던전", bosses:[
+      { nm:"근접 스켈레톤",   hp:1100, drops:[["녹슨 검날","2%"]], img:BOSS_IMG["근접 스켈레톤"] }
+    ]},
+    { name:"제3던전", bosses:[
+      { nm:"크롬 기사", hp:null, drops:[], img:BOSS_IMG["크롬 기사"] }
+    ]},
+    { name:"제4던전", bosses:[
+      { nm:"플레일기사", hp:null, drops:[], img:BOSS_IMG["플레일기사"] }
+    ]}
+  ];
+  var 선택 = 0, 그리는중 = false;
+
+  function esc(s){ return String(s).replace(/[&<>\"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function 현재(){ return decodeURIComponent(location.hash || "").replace(/^#\/?/,""); }
+  function 여기인가(){ return 현재() === "p/mob-boss"; }
+
+  function 상세(m){
+    var 사진 = m.img ? '<img src="'+esc(m.img)+'" alt="'+esc(m.nm)+'">' : '<span class="boss-noimg">👾</span>';
+    var 드롭 = (m.drops && m.drops.length) ? m.drops.map(function(d){
+      return '<div class="mobd-drop"><span class="chip">'+(typeof BOSSDROP_IMG!=="undefined" && BOSSDROP_IMG[d[0]] ? '<img class="boss-ico" src="'+BOSSDROP_IMG[d[0]]+'" alt="">' : '')+esc(d[0])+'</span><span class="mobd-rate">'+esc(d[1])+'</span></div>';
+    }).join("") : '<span class="boss-none">드롭 아이템 없음</span>';
+    return '<div class="boss-card"><div class="boss-pic">'+사진+'</div><div><h3 class="section-h" style="margin-top:0"> 💀보스아이콘 '+esc(m.nm)+'</h3><dl class="boss-dl"><dt>체력</dt><dd><span class="boss-hp">'+(m.hp==null?'-':String(m.hp).replace(/\B(?=(\d{3})+(?!\d))/g,","))+'</span>'+(m.hp==null?'':' HP')+'</dd><dt>드롭 아이템</dt><dd>'+드롭+'</dd></dl></div></div>';
+  }
+
+  function 본문(){
+    if(!BOSS_DUNGEONS.length) return '<div class="crumb">몬스터 도감 › 보스 몬스터</div><h1 class="page-title">보스 몬스터</h1><div class="empty"><strong>준비 중인 문서입니다</strong>보스 몬스터 데이터가 등록되면 이곳에 표시됩니다.</div>';
+    선택 = Math.max(0, Math.min(선택, BOSS_DUNGEONS.length-1));
+    var 던전 = BOSS_DUNGEONS[선택];
+    return '<div class="crumb">몬스터 도감 › 보스 몬스터</div><h1 class="page-title">보스 몬스터</h1><p class="page-desc">던전을 선택하면 해당 던전의 보스 정보가 표시됩니다.</p><div class="tabs">'+BOSS_DUNGEONS.map(function(d,i){return '<button class="tab '+(i===선택?'on':'')+'" data-boss-dungeon="'+i+'">'+esc(d.name)+'</button>';}).join('')+'</div><div class="section"><h3 class="section-h">'+esc(던전.name)+' 보스</h3><div class="boss-list">'+던전.bosses.map(상세).join('')+'</div></div>';
+  }
+
+  function 사이드바(){
+    var sb=document.getElementById('sidebar'); if(!sb) return;
+    var btn=sb.querySelector('[data-go="#/p/mob-boss"]'); if(btn) btn.classList.toggle('active',여기인가());
+  }
+  function 그리기(){
+    사이드바(); if(!여기인가() || 그리는중) return;
+    var c=document.getElementById('content'); if(!c) return;
+    var key=String(선택); var mark=c.querySelector('#bossArea'); if(mark && mark.getAttribute('data-boss-key')===key) return;
+    그리는중=true; try{ c.innerHTML='<div id="bossArea" data-boss-key="'+esc(key)+'">'+본문()+'</div>'; } finally{ 그리는중=false; }
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target && e.target.closest ? e.target.closest('[data-boss-dungeon]') : null;
+    if(b && 여기인가()){ 선택=parseInt(b.getAttribute('data-boss-dungeon'),10)||0; 그리기(); }
+  });
+  window.addEventListener('hashchange',function(){ 선택=0; setTimeout(그리기,0); });
+  var c0=document.getElementById('content'); if(c0 && window.MutationObserver) new MutationObserver(function(){그리기();}).observe(c0,{childList:true});
   그리기();
 })();
 </script>
