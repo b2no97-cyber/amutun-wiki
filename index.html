@@ -1897,35 +1897,36 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
     "심연의 파편": "data:image/webp;base64,UklGRpACAABXRUJQVlA4TIMCAAAvHUAHENfkOJIkR6numbtDaxMwgTeB/8ZggNp2A44kSYqkiIJlBm31/f/jTrvtcuS2kSNZrqqZzTmd9v9PzF0M27YNQ2f/n7wqQIECBgCAAgYAPdSAMYKQlmhMaQeViQaGEoAwIgQQlGFCEEFCg4HVMsMP+6/CGAn1UmKGhomaCKPmpBO+obCg7QbRBq47J0N+QKTamGhKrwMfXNWL+7QREkN+4pj8O5ub+XrShyXdL1UPklnlf43riiKbT9vVYZFPy+fIu30fWx1nq0MykWSv/v3P9/w9OuxOJ2CgsBcEISyiBoRiPNtoqbEMglQGKwABIQEI0RR4/73dP8+myiUEg4VTiOAVXK0joVUkhVglaMjN+6VaqE2adwurSsrZ8bIjQfLmjJuqeFNdbzuTNWVzV8fTtu7p7HidNRKTYoAtAGDZKM12s21bZ9u2bdu2bX+t0x3ek4j+K3LbtmGStqfdV7z+pZgID3WNw9G+fi8Lx+DtmBTQh3cf3mHaNTB/SYCFvqWBB9AlW6DojXAHXvLFdC1QgJbZfYB7YtwrI5SfSeuKr55AYllSy4ifSY/tadtZmj/XkuJgKgkNbZLz6IKS7NjyFMcBROGYKEmbJKekvrgwyn4A0Y6m+JmBonpcnWe/UUCMbh7fs7amubEyN5KhIK/INDz28auaGqqzgrz3QiOG9L70qrqsOPEmJK86PTKnWemurIo48elHnVEo0+xpVponS7zTCYfAGUQ08IRNyB4r5D3Uwk7+EHKqSXiyxu69Y8VrYevLqMD6/Ug0CUn38TNrxswg/RdvRZKt4Dsa0QbA3cPjLLM6g2Ukqi2A+JkR8lQmV7jMIotcTFYTAH7950EAAA==",
     "성공의 강화석": "data:image/webp;base64,UklGRtIAAABXRUJQVlA4TMUAAAAvD8ADEG+gqJEkZXklwN1J2Of5V0Y21ESSFF30CrjwBUyQ498JEkBtJKkNBbiMnKEC+u+JEOQ1/wEA/v/lKPONFptQTrOwtDD4fvq6VnNY7IfgtNq2ZXl+JVv6Ep7fIXCXRrTfK+fPOCuwwS8ZGcBlApvGZojo/wTg38bQtj/Wz/c7ALR9z3sEQDvPC+4kTBTGRh/HIBs5EiZ3hS0diTQrGFl6Eml6cD/tgLRi5p7hQdrqUunzoEImo6QBdBUlzgOIxuP4GwA=",
     "할인의 강화석": "data:image/webp;base64,UklGRsoAAABXRUJQVlA4TL0AAAAvD8ADEG+gNpKt5H+clP57csmcFkihDbWRpDa4mP5bogVGsQrwXlIUAGTET/8eOihzW4F78x8A4P//ADKHcREjutAGkTZNyg7ywlB1unY0n+Cm1ra1eccwlGFDA0xjHJQ9dCQLEVBmpjGnG34SspbcpNEQ0f8JgN3lWdcZALm4qjLAslguexmgUC6raQ5UsWqMVLVT5aiv1d0WXdX7J9jZgfrGtVnlQLGQdnkBFDOuExEwR6PRC4D5+/1E2AUA",
+    "하급 소켓석": "data:image/webp;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAACgBAMAAAB54XoeAAAAIVBMVEUAAAAgGAooHgs3KRBJNhVZQxloTh5rUR91WCGGZSaJZyeeFUrKAAAAAXRSTlMAQObYZgAAAJlJREFUeNrt1QcRg0AUhsGzgAUsxAIWYiEWsICFWIjKzP/Se53KfgIWrjdJf29xDAgEPrbWx04qEAi8tsY0JSAQ+Ng6NaRVakAgsEsFTqmsZRpTn4BA4JlaDelK7RIQCNx1epX6VBYQCLy2Nqmsq+PY0qxBIPD6wLUHzQMEAo0WCPzTqwQEAv974IBALwkQCCzmZAGBQEmftQUZ5LJ4NcKiAQAAAABJRU5ErkJggg==",
   };
 
   /* ── 던전 몬스터 데이터 ── */
   var DUNGEONS = [
     { name:"제1던전", mobs:[
-      { nm:"엘더 머쉬", hp:300, drops:[["거대 버섯 곤봉","2%"]], img:MOB_IMG["엘더 머쉬"] },
-      { nm:"알파 머쉬", hp:200, drops:[], img:MOB_IMG["알파 머쉬"] },
-      { nm:"아기 머쉬", hp:100, drops:[], img:MOB_IMG["아기 머쉬"] },
+      { nm:"아기 머쉬", hp:150, drops:[], img:MOB_IMG["아기 머쉬"] },
+      { nm:"알파 머쉬", hp:250, drops:[], img:MOB_IMG["알파 머쉬"] },
+      { nm:"엘더 머쉬", hp:400, drops:[["거대 버섯 곤봉","2%"]], img:MOB_IMG["엘더 머쉬"] }
     ]},
     { name:"제2던전", mobs:[
-      { nm:"정예 스켈레톤",   hp:800, drops:[["스켈레톤의 혈석","2%"]], img:MOB_IMG["정예 스켈레톤"] },
-      { nm:"근접 스켈레톤",   hp:500, drops:[["녹슨 검날","2%"]],       img:MOB_IMG["근접 스켈레톤"] },
-      { nm:"스켈레톤 궁수",   hp:500, drops:[["녹슨 단검","2%"]],       img:MOB_IMG["스켈레톤 궁수"] },
-      { nm:"스켈레톤 마법사", hp:500, drops:[],                          img:MOB_IMG["스켈레톤 마법사"] },
+      { nm:"근접 스켈레톤",   hp:1100, drops:[["녹슨 검날","2%"]],       img:MOB_IMG["근접 스켈레톤"] },
+      { nm:"스켈레톤 궁수",   hp:1000, drops:[["녹슨 단검","2%"]],       img:MOB_IMG["스켈레톤 궁수"] },
+      { nm:"스켈레톤 마법사", hp:800, drops:[],                          img:MOB_IMG["스켈레톤 마법사"] },
+      { nm:"정예 스켈레톤",   hp:1500, drops:[["스켈레톤의 혈석","2%"]], img:MOB_IMG["정예 스켈레톤"] },
     ]},
     { name:"제3던전", mobs:[
-      { nm:"워해머 기사",   hp:1500,  drops:[],                        img:MOB_IMG["워해머 기사"] },
-      { nm:"플레일 기사",   hp:1500,  drops:[["기사의 유산","2%"]],    img:MOB_IMG["플레일 기사"] },
-      { nm:"할버드 기사",   hp:1500,  drops:[],                        img:MOB_IMG["할버드 기사"] },
-      { nm:"지옥불 워리어", hp:50000, drops:[["군주의 심핵","50%"]],   img:MOB_IMG["지옥불 워리어"] },
+      { nm:"크롬 병사",       hp:2200,  drops:[["기사의 군번줄","2%"], ["하급 소켓석","0.3%"]], img:MOB_IMG["크롬 병사"] },
+      { nm:"크로메드 팔라딘", hp:40000, drops:[["팔라딘의 증표","20%"]], img:MOB_IMG["크로메드 팔라딘"] },
     ]},
     { name:"제4던전", mobs:[
-      { nm:"크롬 병사",       hp:1000,  drops:[["기사의 군번줄","2%"],["성공의 강화석","0.4%"],["할인의 강화석","0.4%"]], img:MOB_IMG["크롬 병사"] },
-      { nm:"크로메드 팔라딘", hp:40000, drops:[["팔라딘의 증표","50%"]], img:MOB_IMG["크로메드 팔라딘"] },
+      { nm:"플레일 기사",   hp:2700,  drops:[["중급 소켓석","0.3%"], ["기사의 유산","2%"]],    img:MOB_IMG["플레일 기사"] },
+      { nm:"워해머 기사",   hp:2700,  drops:[["중급 소켓석","0.3%"]],    img:MOB_IMG["워해머 기사"] },
+      { nm:"할버드 기사",   hp:2700,  drops:[["중급 소켓석","0.3%"]],    img:MOB_IMG["할버드 기사"] },
+      { nm:"지옥불 워리어", hp:50000, drops:[["군주의 심핵","20%"]],   img:MOB_IMG["지옥불 워리어"] },
     ]},
     { name:"제5던전", mobs:[
-      { nm:"사악한 늑대", hp:5000, drops:[["심연의 파편","2%"]], img:MOB_IMG["사악한 늑대"] },
-      { nm:"부패한 꽃",   hp:5000, drops:[["심연의 파편","2%"]], img:MOB_IMG["부패한 꽃"] },
-      { nm:"비탄의 실프", hp:5000, drops:[["심연의 파편","2%"]], img:MOB_IMG["비탄의 실프"] },
+      { nm:"사악한 늑대", hp:4000, drops:[["심연의 파편","2%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["사악한 늑대"] },
+      { nm:"부패한 꽃",   hp:4000, drops:[["심연의 파편","2%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["부패한 꽃"] },
+      { nm:"비탄의 실프", hp:4000, drops:[["심연의 파편","2%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["비탄의 실프"] },
     ]},
   ];
 
@@ -2105,7 +2106,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
     "보스 레이드는 <b>파티 플레이</b>로 진행해야 수월해요.",
     "렙업이 목표시라면, <b>던전에서 경험치</b>를 얻으시는 게 수월해요.",
     "<b>땅 구매서</b>는 거주지 내에 <b>발광석</b> 위에서 사용해야 합니다.",
-    "차가운 <b>요리냄비</b>는 사용할 수 없습니다. <b>부싯돌과 부시</b>로 불을 붙여 주세요.",
+    "<b>재료</b>를 가지고 <b>요리점</b>에 가시면 요리를 만드실 수 있습니다.",
     "<b>낫</b> 등급이 높을수록 사용 범위가 넓어져요.",
     "<b>커스텀 농작물</b>은 <b>마른 경작지</b>가 필요해요.",
   ];
@@ -2807,7 +2808,7 @@ html[data-theme="dark"] .shopw-thumb img{filter:none;}
     "불길한 현수막": "습격 이벤트의 습격 대장을 처치하여 획득할 수 있습니다.",
     "조율된 스컬크 감지체": "스컬크 감지체와 메아리 조각을 조합하여 제작합니다.",
     "불길한 시련의 열쇠": "시련의 회당에서 불길한 시련 생성기의 시련을 완료하여 획득할 수 있습니다.",
-    "아르마딜로 갑옷": "아르마딜로에게 솔을 사용하여 획득할 수 있습니다.",
+    "아르마딜로 인갑": "아르마딜로에게 솔을 사용하여 획득할 수 있습니다.",
     "신속의 화살": "화살 8개와 신속의 잔류형 물약을 조합하여 제작합니다.",
     "도약의 화살": "화살 8개와 도약의 잔류형 물약을 조합하여 제작합니다.",
     "고통의 물약": "독 물약 또는 치유의 물약에 발효된 거미 눈을 양조하여 제작합니다.",
