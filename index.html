@@ -1996,7 +1996,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
   };
 
   /* ── 던전 몬스터 데이터 ── */
-  var DUNGEONS = [
+  var DUNGEONS = window.DUNGEONS = [
     { name:"[제 1던전] 버섯 동굴", mobs:[
       { nm:"아기 머쉬", hp:150, drops:[], img:MOB_IMG["아기 머쉬"] },
       { nm:"알파 머쉬", hp:250, drops:[], img:MOB_IMG["알파 머쉬"] },
@@ -2191,7 +2191,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
 
   /* ── 던전별 보스 목록 ──
      같은 던전에 보스가 여러 마리 있으면 한 탭 안에 함께 표시합니다. */
-  var BOSS_DUNGEONS = [
+  var BOSS_DUNGEONS = window.BOSS_DUNGEONS = [
     { name:"울부짖는 칼바람 협곡", bosses:[
       { nm:"아기 머쉬 1", hp:null, drops:[], img:BOSS_IMG["아기 머쉬 1"] },
       { nm:"아기 머쉬 2", hp:null, drops:[], img:BOSS_IMG["아기 머쉬 2"] }
@@ -3534,6 +3534,677 @@ html[data-theme="dark"] .calcx-lack{color:#FF8A8A;}
   });
 
   /* 메뉴를 늦게 추가했으므로 현재 주소를 다시 한 번 해석해 반영 */
+  try{
+    route = Object.assign({ sub:0, pick:null }, parseHash());
+    if(typeof syncOpenTop === "function") syncOpenTop();
+    render();
+  }catch(e){
+    if(typeof renderSidebar === "function") renderSidebar();
+  }
+})();
+</script>
+
+
+<!-- ════════ [추가] 인챈트 시뮬레이터 (기존 코드 무수정 · 추가 전용) ════════ -->
+<style id="sim-style">
+.simx-wrap{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;}
+.simx-left{flex:1 1 380px;min-width:0;}
+.simx-right{flex:0 1 300px;min-width:260px;}
+.simx-chip{position:relative;}
+.simx-chip.off{opacity:.42;cursor:not-allowed;}
+.simx-chip.picked{border-color:var(--green);background:var(--green-soft);font-weight:700;}
+.simx-why{display:block;font-size:11px;color:#D64545;margin-top:3px;line-height:1.35;}
+html[data-theme="dark"] .simx-why{color:#FF8A8A;}
+.simx-slot{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--panel);padding:8px 10px;margin:0 0 6px;
+}
+.simx-slot .nm{font-weight:700;font-size:13px;}
+.simx-slot .gr{font-size:11px;color:var(--ink-soft);}
+.simx-x{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);
+  border-radius:6px;cursor:pointer;font:inherit;font-size:12px;padding:2px 8px;
+}
+.simx-x:hover{border-color:#D64545;color:#D64545;}
+.simx-empty{color:var(--ink-soft);font-size:13px;padding:10px 0;}
+.simx-eff{font-size:13px;line-height:1.6;margin:0 0 10px;}
+.simx-eff b{display:block;}
+.simx-eff span{color:var(--ink-soft);}
+</style>
+<script id="sim-script">
+(function(){
+  if(typeof NAV === "undefined" || typeof PAGES === "undefined") return;
+  if(typeof enchData === "undefined" || typeof ENCH_INFO === "undefined") return;
+  if(typeof ENCH_GROUPS === "undefined" || typeof render !== "function") return;
+
+  /* ── 사이드바에 항목 하나만 추가 ── */
+  var 인챈트탭 = null;
+  for(var i = 0; i < NAV.length; i++) if(NAV[i].id === "ench") 인챈트탭 = NAV[i];
+  if(!인챈트탭 || !인챈트탭.children) return;
+  if(!인챈트탭.children.some(function(c){ return c.id === "ench-sim"; }))
+    인챈트탭.children.push({ id:"ench-sim", label:"인챈트 시뮬레이터", page:"sim" });
+
+  function esc(v){
+    return String(v).replace(/[&<>"]/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c];
+    });
+  }
+  function 정규화(v){ return String(v).replace(/\s+/g, ""); }
+  function 레벨뗀이름(v){ return String(v).replace(/\s+(?:I|II|III|IV|V|VI|VII|VIII|IX|X)$/, "").trim(); }
+
+  /* ── ENCH_INFO 이름 색인 ── */
+  var 이름색인 = {};
+  Object.keys(ENCH_INFO).forEach(function(k){
+    이름색인[정규화(k)] = k;
+    if(ENCH_INFO[k] && ENCH_INFO[k].name) 이름색인[정규화(ENCH_INFO[k].name)] = k;
+  });
+  function 키찾기(표시명){
+    var b = 레벨뗀이름(표시명);
+    return 이름색인[정규화(b)] || 이름색인[정규화(표시명)] || null;
+  }
+
+  /* ── 규칙 ①: 설명문에 적힌 "○○와 동시 부여 불가" 를 그대로 읽어 쌍으로 만든다 ── */
+  var 충돌 = {};
+  function 충돌추가(a, b){
+    if(!a || !b || a === b) return;
+    (충돌[a] = 충돌[a] || {})[b] = true;
+    (충돌[b] = 충돌[b] || {})[a] = true;
+  }
+  Object.keys(ENCH_INFO).forEach(function(k){
+    var d = String(ENCH_INFO[k].desc || "");
+    var m = d.match(/([^.。]*?)(?:와|과)\s*동시 부여 불가/);
+    if(!m) return;
+    var 앞 = m[1].split(/[.。]/).pop();
+    앞.split(/[·,]/).forEach(function(raw){
+      var t = 정규화(raw.trim());
+      if(!t) return;
+      /* "보호 계열" = 보호·화염 보호·폭발 보호·발사체 보호 전부 (넷 다 서로 불가) */
+      if(t === "보호계열"){
+        ["보호","화염보호","폭발보호","발사체보호"].forEach(function(x){
+          if(이름색인[x]) 충돌추가(k, 이름색인[x]);
+        });
+        return;
+      }
+      if(이름색인[t]) 충돌추가(k, 이름색인[t]);
+      /* 이름이 매칭 안 되는 표현은 반대쪽 설명에서 이미 잡히므로 건너뜀 */
+    });
+  });
+  /* 보호 4종은 서로 전부 배타 */
+  (function(){
+    var 보호들 = ["보호","화염보호","폭발보호","발사체보호"]
+      .map(function(x){ return 이름색인[x]; }).filter(Boolean);
+    보호들.forEach(function(a){ 보호들.forEach(function(b){ 충돌추가(a, b); }); });
+  })();
+
+  /* ── 규칙 ②: 색상 그룹 (ENCH_GROUPS 의 rule 문자열을 그대로 읽음) ── */
+  function 그룹배타(g){
+    var r = ENCH_GROUPS[g] && ENCH_GROUPS[g].rule;
+    return r === "중첩 불가";          /* 중첩 가능 / 빈 문자열 / 그 외는 제한 없음 */
+  }
+
+  /* ── 상태 ── */
+  var 부위목록 = [];
+  Object.keys(enchData).forEach(function(cat){
+    Object.keys(enchData[cat].items).forEach(function(part){
+      부위목록.push({ cat:cat, part:part, id:cat + ">" + part });
+    });
+  });
+  var 상태 = { 부위: 부위목록.length ? 부위목록[0].id : null, 담음: [] };
+  function 현재부위(){
+    for(var i = 0; i < 부위목록.length; i++) if(부위목록[i].id === 상태.부위) return 부위목록[i];
+    return 부위목록[0];
+  }
+  function 후보들(){
+    var b = 현재부위(); if(!b) return [];
+    var out = [];
+    (enchData[b.cat].items[b.part].groups || []).forEach(function(pair){
+      var g = pair[0];
+      (pair[1] || []).forEach(function(표시명){ out.push({ 표시:표시명, 그룹:g, 키:키찾기(표시명) }); });
+    });
+    return out;
+  }
+
+  /* ── 왜 못 담는지 한 줄로 ── */
+  function 막힘사유(항목){
+    for(var i = 0; i < 상태.담음.length; i++){
+      var 담긴 = 상태.담음[i];
+      if(담긴.표시 === 항목.표시) return null;
+      if(항목.키 && 담긴.키 && 충돌[항목.키] && 충돌[항목.키][담긴.키])
+        return 레벨뗀이름(담긴.표시) + 와과(레벨뗀이름(담긴.표시)) + " 중첩 불가";
+      if(그룹배타(항목.그룹) && 담긴.그룹 === 항목.그룹)
+        return (ENCH_GROUPS[항목.그룹].label || 항목.그룹) + " 계열은 1개만 (" + 레벨뗀이름(담긴.표시) + " 적용 중)";
+    }
+    return null;
+  }
+  function 담겼나(표시){ return 상태.담음.some(function(x){ return x.표시 === 표시; }); }
+
+  /* 받침 유무에 따라 조사 붙이기 */
+  function 와과(말){
+    var t = String(말).trim();
+    if(!t) return "와";
+    var c = t.charCodeAt(t.length - 1);
+    if(c < 0xAC00 || c > 0xD7A3) return "와";
+    return ((c - 0xAC00) % 28) ? "과" : "와";
+  }
+
+  PAGES.sim = function(){
+    var b = 현재부위();
+    if(!b) return '<div class="empty"><strong>인챈트 정보를 찾을 수 없습니다</strong></div>';
+    var 목록 = 후보들();
+
+    var 부위버튼 = 부위목록.map(function(x){
+      return '<button class="tab ' + (x.id === 상태.부위 ? "on" : "") + '" data-sim-part="' + esc(x.id) + '">'
+           + esc(x.cat) + ' · ' + esc(x.part) + '</button>';
+    }).join("");
+
+    var 칩들 = 목록.map(function(it){
+      var on = 담겼나(it.표시);
+      var 사유 = on ? null : 막힘사유(it);
+      var cls = "chip simx-chip " + (on ? "picked" : (사유 ? "off" : "click"));
+      return '<span class="' + cls + '"' + (on || !사유 ? ' data-sim-add="' + esc(it.표시) + '"' : "") + '>'
+           + esc(it.표시)
+           + (사유 ? '<span class="simx-why">' + esc(사유) + '</span>' : "")
+           + '</span>';
+    }).join("");
+
+    var 슬롯 = 상태.담음.length
+      ? 상태.담음.map(function(x){
+          var g = ENCH_GROUPS[x.그룹];
+          return '<div class="simx-slot"><span><span class="nm">' + esc(x.표시) + '</span>'
+               + '<span class="gr"> · ' + esc(g ? g.label : x.그룹) + '</span></span>'
+               + '<button class="simx-x" data-sim-del="' + esc(x.표시) + '">빼기</button></div>';
+        }).join("")
+      : '<p class="simx-empty">왼쪽에서 인챈트를 눌러 담아보세요.</p>';
+
+    var 효과 = 상태.담음.length
+      ? 상태.담음.map(function(x){
+          var info = x.키 ? ENCH_INFO[x.키] : null;
+          return '<p class="simx-eff"><b>' + esc(x.표시) + '</b>'
+               + '<span>' + esc(info && info.desc ? info.desc : "설명이 등록되지 않은 인챈트입니다.") + '</span></p>';
+        }).join("")
+      : '<p class="simx-empty">담은 인챈트가 없습니다.</p>';
+
+    return (typeof crumb === "function" ? crumb() : "")
+    + '<h1 class="page-title">🧪 인챈트 시뮬레이터</h1>'
+    + '<p class="page-desc">부위를 고르고 인챈트를 눌러 담아보세요. 이미 담은 것과 함께 쓸 수 없는 인챈트는 '
+    +   '흐리게 바뀌고 이유가 표시됩니다. 중첩 규칙은 위키의 색상 그룹 규칙과 각 인챈트 설명을 그대로 따릅니다.</p>'
+    + '<div class="section"><h3 class="section-h">장비 부위</h3><div class="tabs">' + 부위버튼 + '</div></div>'
+    + '<div class="simx-wrap">'
+    +   '<div class="simx-left"><div class="section">'
+    +     '<h3 class="section-h">' + esc(b.cat) + ' · ' + esc(b.part) + ' 인챈트 (' + 목록.length + '종)</h3>'
+    +     '<div class="chips">' + 칩들 + '</div></div></div>'
+    +   '<div class="simx-right">'
+    +     '<div class="section"><h3 class="section-h">담은 인챈트 (' + 상태.담음.length + ')</h3>'
+    +       슬롯
+    +       (상태.담음.length ? '<button class="simx-x" data-sim-reset="1" style="margin-top:6px">전체 초기화</button>' : "")
+    +     '</div>'
+    +     '<div class="section"><h3 class="section-h">적용 효과</h3>' + 효과 + '</div>'
+    +   '</div>'
+    + '</div>';
+  };
+
+  document.addEventListener("click", function(e){
+    if(!e.target || !e.target.closest) return;
+
+    var part = e.target.closest("[data-sim-part]");
+    if(part){ 상태.부위 = part.getAttribute("data-sim-part"); 상태.담음 = []; render(); return; }
+
+    var reset = e.target.closest("[data-sim-reset]");
+    if(reset){ 상태.담음 = []; render(); return; }
+
+    var del = e.target.closest("[data-sim-del]");
+    if(del){
+      var d = del.getAttribute("data-sim-del");
+      상태.담음 = 상태.담음.filter(function(x){ return x.표시 !== d; });
+      render(); return;
+    }
+
+    var add = e.target.closest("[data-sim-add]");
+    if(add){
+      var nm = add.getAttribute("data-sim-add");
+      if(담겼나(nm)){ 상태.담음 = 상태.담음.filter(function(x){ return x.표시 !== nm; }); render(); return; }
+      var 항목 = null, L = 후보들();
+      for(var i = 0; i < L.length; i++) if(L[i].표시 === nm) 항목 = L[i];
+      if(항목 && !막힘사유(항목)){ 상태.담음.push(항목); render(); }
+      return;
+    }
+  });
+
+  try{
+    route = Object.assign({ sub:0, pick:null }, parseHash());
+    if(typeof syncOpenTop === "function") syncOpenTop();
+    render();
+  }catch(e){
+    if(typeof renderSidebar === "function") renderSidebar();
+  }
+})();
+</script>
+
+
+<!-- ════════ [추가] 전체 검색 오버레이 (기존 페이지 무수정 · 오버레이 전용) ════════ -->
+<style id="findx-style">
+.findx-btn{
+  display:none;align-items:center;justify-content:center;
+  width:36px;height:36px;margin-left:8px;flex:0 0 auto;
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--panel);color:var(--ink);cursor:pointer;font-size:15px;
+}
+.findx-btn:hover{border-color:var(--green);}
+@media (max-width:760px){ .findx-btn{display:flex;} }
+.findx-back{
+  position:fixed;inset:0;z-index:9000;display:none;
+  background:rgba(17,21,19,.38);backdrop-filter:blur(2px);
+  padding:12vh 16px 16px;
+}
+.findx-back.on{display:block;}
+.findx-box{
+  max-width:560px;margin:0 auto;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:0 18px 48px rgba(0,0,0,.22);overflow:hidden;
+}
+.findx-top{display:flex;align-items:center;gap:9px;padding:12px 14px;border-bottom:1px solid var(--line);}
+.findx-top input{
+  flex:1;border:0;outline:0;background:transparent;color:var(--ink);
+  font:inherit;font-size:15px;
+}
+.findx-top input::placeholder{color:var(--ink-soft);}
+.findx-esc{font-size:11px;color:var(--ink-soft);border:1px solid var(--line);border-radius:4px;padding:2px 6px;}
+.findx-list{max-height:52vh;overflow-y:auto;}
+.findx-row{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;
+  border-bottom:1px solid var(--line);
+}
+.findx-row:last-child{border-bottom:0;}
+.findx-row.on{background:var(--green-soft);}
+.findx-row .nm{font-size:13px;font-weight:600;color:var(--ink);}
+.findx-row .cat{margin-left:auto;font-size:11px;color:var(--ink-soft);white-space:nowrap;}
+.findx-row .ic{flex:0 0 auto;font-size:14px;}
+.findx-none{padding:22px 14px;text-align:center;color:var(--ink-soft);font-size:13px;}
+.findx-foot{
+  display:flex;gap:12px;padding:8px 14px;border-top:1px solid var(--line);
+  color:var(--ink-soft);font-size:11px;
+}
+html[data-theme="dark"] .findx-back{background:rgba(0,0,0,.55);}
+</style>
+<script id="findx-script">
+(function(){
+  if(typeof weaponsData === "undefined") return;
+
+  function esc(v){
+    return String(v).replace(/[&<>"]/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c];
+    });
+  }
+  function 정규화(v){ return String(v).replace(/\s+/g, "").toLowerCase(); }
+  function 하이픈(v){ return String(v).replace(/\s+/g, "-"); }
+
+  var 인챈트슬러그 = { "무기":"weapon", "도구":"tool", "방어구":"armor" };
+  var 요리슬러그   = { "판매용 요리":"sell", "버프용 요리":"buff" };
+  var ROMAN2 = (typeof ROMAN !== "undefined") ? ROMAN : ["I","II","III","IV","V","VI"];
+
+  /* ── 색인: 위키에 이미 있는 데이터만 모은다 ── */
+  var 색인 = null;
+  function 색인만들기(){
+    if(색인) return 색인;
+    var out = [];
+
+    Object.keys(weaponsData).forEach(function(w){
+      weaponsData[w].stages.forEach(function(_, i){
+        out.push({ ic:"🗡️", nm:w + " " + ROMAN2[i], cat:"무기",
+                   href:"#weapon/" + 하이픈(w) + "-" + (i + 1) });
+      });
+    });
+
+    if(typeof enchData !== "undefined"){
+      Object.keys(enchData).forEach(function(cat){
+        var s = 인챈트슬러그[cat];
+        Object.keys(enchData[cat].items).forEach(function(part){
+          (enchData[cat].items[part].groups || []).forEach(function(pair){
+            (pair[1] || []).forEach(function(n){
+              out.push({ ic:"✨", nm:n, cat:"인챈트 · " + cat + "/" + part,
+                         href: s ? "#enchant/" + s + "/" + 하이픈(part) + "/" + 하이픈(n)
+                                 : "#/p/" + encodeURIComponent("ench-" + cat) });
+            });
+          });
+        });
+      });
+    }
+
+    if(typeof cookData !== "undefined"){
+      Object.keys(cookData).forEach(function(cat){
+        var s = 요리슬러그[cat];
+        Object.keys(cookData[cat].items).forEach(function(tab){
+          (cookData[cat].items[tab].recipes || []).forEach(function(r){
+            out.push({ ic:"🍳", nm:r[0], cat:"요리 · " + cat + "/" + tab,
+                       href: s ? "#cooking/" + s + "/" + 하이픈(tab)
+                               : "#/p/" + encodeURIComponent("cook-" + cat) });
+          });
+        });
+      });
+    }
+
+    if(typeof window.DUNGEONS !== "undefined")
+      window.DUNGEONS.forEach(function(d){
+        (d.mobs || []).forEach(function(m){
+          out.push({ ic:"👾", nm:m.nm, cat:"몬스터 · " + d.name, href:"#/p/mob-area" });
+        });
+      });
+
+    if(typeof window.BOSS_DUNGEONS !== "undefined")
+      window.BOSS_DUNGEONS.forEach(function(d){
+        (d.bosses || []).forEach(function(bo){
+          out.push({ ic:"💀", nm:bo.nm || bo.name, cat:"보스 · " + d.name, href:"#/p/mob-boss" });
+        });
+      });
+
+    색인 = out.filter(function(x){ return x.nm; });
+    return 색인;
+  }
+
+  /* ── 검색: 앞에서 일치하는 것을 위로 ── */
+  function 찾기(q){
+    var t = 정규화(q);
+    if(!t) return [];
+    var 앞 = [], 중간 = [];
+    색인만들기().forEach(function(x){
+      var i = 정규화(x.nm).indexOf(t);
+      if(i === 0) 앞.push(x);
+      else if(i > 0) 중간.push(x);
+    });
+    return 앞.concat(중간).slice(0, 40);
+  }
+
+  /* ── 화면 ── */
+  var back = document.createElement("div");
+  back.className = "findx-back";
+  back.innerHTML =
+      '<div class="findx-box">'
+    +   '<div class="findx-top"><span>🔍</span>'
+    +     '<input id="findxInput" type="text" placeholder="무기 · 인챈트 · 요리 · 몬스터 검색" autocomplete="off">'
+    +     '<span class="findx-esc">ESC</span></div>'
+    +   '<div class="findx-list" id="findxList"></div>'
+    +   '<div class="findx-foot"><span>↑ ↓ 이동</span><span>Enter 열기</span><span>ESC 닫기</span></div>'
+    + '</div>';
+  document.body.appendChild(back);
+
+  var 입력 = back.querySelector("#findxInput");
+  var 목록 = back.querySelector("#findxList");
+  var 결과 = [], 커서 = 0;
+
+  function 그리기(){
+    if(!입력.value.trim()){
+      목록.innerHTML = '<p class="findx-none">검색어를 입력하세요.</p>';
+      결과 = []; return;
+    }
+    결과 = 찾기(입력.value);
+    if(!결과.length){ 목록.innerHTML = '<p class="findx-none">결과가 없습니다.</p>'; return; }
+    if(커서 >= 결과.length) 커서 = 0;
+    목록.innerHTML = 결과.map(function(x, i){
+      return '<div class="findx-row ' + (i === 커서 ? "on" : "") + '" data-findx-i="' + i + '">'
+           + '<span class="ic">' + x.ic + '</span>'
+           + '<span class="nm">' + esc(x.nm) + '</span>'
+           + '<span class="cat">' + esc(x.cat) + '</span></div>';
+    }).join("");
+    var on = 목록.querySelector(".findx-row.on");
+    if(on && on.scrollIntoView) on.scrollIntoView({ block:"nearest" });
+  }
+
+  function 열기(){
+    back.classList.add("on");
+    입력.value = ""; 커서 = 0; 그리기();
+    setTimeout(function(){ 입력.focus(); }, 0);
+  }
+  function 닫기(){ back.classList.remove("on"); }
+  function 열렸나(){ return back.classList.contains("on"); }
+
+  function 이동(i){
+    var x = 결과[i];
+    if(!x) return;
+    닫기();
+    location.hash = x.href.replace(/^#/, "#");
+  }
+
+  입력.addEventListener("input", function(){ 커서 = 0; 그리기(); });
+
+  back.addEventListener("mousedown", function(e){
+    if(e.target === back) 닫기();                 /* 바깥 클릭 */
+  });
+  목록.addEventListener("click", function(e){
+    var r = e.target.closest && e.target.closest("[data-findx-i]");
+    if(r) 이동(parseInt(r.getAttribute("data-findx-i"), 10));
+  });
+
+  back.addEventListener("keydown", function(e){
+    if(e.key === "Escape"){ e.preventDefault(); 닫기(); return; }
+    if(e.key === "ArrowDown"){ e.preventDefault(); if(결과.length){ 커서 = (커서 + 1) % 결과.length; 그리기(); } return; }
+    if(e.key === "ArrowUp"){ e.preventDefault(); if(결과.length){ 커서 = (커서 - 1 + 결과.length) % 결과.length; 그리기(); } return; }
+    if(e.key === "Enter"){ e.preventDefault(); 이동(커서); return; }
+  });
+
+  /* Ctrl+K / Cmd+K — 다른 입력칸에 타이핑 중이어도 열리도록 */
+  document.addEventListener("keydown", function(e){
+    if((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")){
+      e.preventDefault();
+      열렸나() ? 닫기() : 열기();
+    }
+  });
+
+  /* 모바일용 돋보기 버튼 — 기존 검색창은 그대로 두고 옆에 하나만 붙임 */
+  var 헤더 = document.querySelector("header.topbar");
+  if(헤더 && !헤더.querySelector(".findx-btn")){
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "findx-btn";
+    btn.setAttribute("aria-label", "검색 열기");
+    btn.textContent = "🔍";
+    btn.addEventListener("click", 열기);
+    헤더.appendChild(btn);
+  }
+})();
+</script>
+
+
+<!-- ════════ [추가] 요리 수익 계산기 (기존 코드 무수정 · 추가 전용) ════════ -->
+<style id="profit-style">
+.pfx-qty{
+  width:110px;padding:6px 9px;box-sizing:border-box;
+  border:1px solid var(--line);border-radius:6px;
+  background:var(--panel);color:var(--ink);font:inherit;font-size:13px;text-align:right;
+}
+.pfx-qty:focus{outline:none;border-color:var(--green);}
+.pfx-qty::-webkit-outer-spin-button,
+.pfx-qty::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.pfx-none{color:var(--ink-soft);}
+.pfx-plus{color:var(--green);font-weight:700;}
+.pfx-note{color:var(--ink-soft);font-size:12px;margin:8px 0 0;line-height:1.6;}
+.pfx-warn{
+  border:1px solid var(--line);border-left:3px solid #D8A200;
+  background:var(--panel);border-radius:var(--radius);
+  padding:11px 14px;margin:0 0 18px;font-size:13px;color:var(--ink-soft);line-height:1.65;
+}
+.pfx-grid{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;}
+.pfx-sum{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0;}
+.pfx-card{
+  flex:1 1 150px;min-width:140px;box-sizing:border-box;
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--panel);padding:14px 16px;
+}
+.pfx-card .k{display:block;font-size:12px;color:var(--ink-soft);margin:0 0 6px;}
+.pfx-card .v{display:block;font-size:22px;font-weight:700;color:var(--ink);
+  line-height:1.25;font-variant-numeric:tabular-nums;word-break:break-all;}
+.pfx-card .u{font-size:13px;font-weight:500;color:var(--ink-soft);margin-left:2px;}
+.pfx-card.main{border-color:var(--green);background:var(--green-soft);}
+.pfx-card.main .k{color:var(--green-deep);}
+.pfx-card.main .v{color:var(--green-deep);}
+html[data-theme="dark"] .pfx-card.main .k,
+html[data-theme="dark"] .pfx-card.main .v{color:var(--green);}
+</style>
+<script id="profit-script">
+(function(){
+  if(typeof NAV === "undefined" || typeof PAGES === "undefined") return;
+  if(typeof cookData === "undefined" || typeof render !== "function") return;
+
+  /* ══════════════════════════════════════════════════════════════
+     ▼▼▼ 요리 1개당 판매가 — 여기 숫자만 채우면 계산이 시작됩니다 ▼▼▼
+         null 로 두면 "정보 없음" 으로 표시됩니다.
+     ══════════════════════════════════════════════════════════════ */
+  var 판매가 = {
+    "글레이즈드 햄": null,
+    "연어 초밥":     null,
+    "대구 초밥":     null,
+    "소고기 꼬치":   null,
+    "닭 꼬치":       null,
+    "베이컨과 달걀": null,
+    "계란토스트":    null,
+    "피쉬앤칩스":    null,
+    "사과파이":      null,
+    "도넛":          null,
+    "초콜릿 우유":   null,
+    "막대사탕":      null,
+    "솜사탕":        null
+  };
+
+  /* 요리 1개를 만들 때 재료가 몇 개 드는지. 기본 1개.
+     다른 것만 적어주세요. 예)  "글레이즈드 햄|돼지고기": 3   */
+  var 개당개수 = {};
+  var 기본개수 = 1;
+  /* ══════════════════════════════════════════════════════════════
+     ▲▲▲ 여기까지 ▲▲▲
+     ══════════════════════════════════════════════════════════════ */
+
+  var 요리탭 = null;
+  for(var i = 0; i < NAV.length; i++) if(NAV[i].id === "cook") 요리탭 = NAV[i];
+  if(!요리탭 || !요리탭.children) return;
+  if(!요리탭.children.some(function(c){ return c.id === "cook-calc"; }))
+    요리탭.children.push({ id:"cook-calc", label:"수익 계산기", page:"profit" });
+
+  function esc(v){
+    return String(v).replace(/[&<>"]/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c];
+    });
+  }
+  function 숫자(v){ return (v === null || v === undefined || isNaN(v)) ? null : Number(v); }
+  function 돈(v){ return v === null ? '<span class="pfx-none">정보 없음</span>' : Number(v).toLocaleString(); }
+  function 개수(요리, 재료){
+    var v = 개당개수[요리 + "|" + 재료];
+    return (v === undefined || v === null) ? 기본개수 : Number(v);
+  }
+
+  var 요리들 = [];
+  (function(){
+    var cat = cookData["판매용 요리"];
+    if(!cat) return;
+    Object.keys(cat.items).forEach(function(tab){
+      (cat.items[tab].recipes || []).forEach(function(r){
+        요리들.push({ nm:r[0], em:r[1] || "🍽️", 탭:tab, 재료:(r[2] || []).slice() });
+      });
+    });
+  })();
+
+  var 상태 = { 고른요리: 요리들.length ? 요리들[0].nm : null, 수량: "1" };
+  function 현재요리(){
+    for(var i = 0; i < 요리들.length; i++) if(요리들[i].nm === 상태.고른요리) return 요리들[i];
+    return 요리들[0];
+  }
+
+  PAGES.profit = function(){
+    if(!요리들.length) return '<div class="empty"><strong>판매용 요리 정보를 찾을 수 없습니다</strong></div>';
+    var 요리 = 현재요리();
+    var 판 = 숫자(판매가[요리.nm]);
+    var n = Math.max(1, parseInt(상태.수량, 10) || 1);
+    var 값있음 = Object.keys(판매가).some(function(k){ return 숫자(판매가[k]) !== null; });
+
+    var 안내 = 값있음 ? "" :
+      '<div class="pfx-warn"><b>아직 판매가가 입력되지 않았습니다.</b><br>'
+    + '요리 판매가가 정해지면 파일 안 <b>요리 수익 계산기</b> 스크립트 맨 위의 표에 '
+    + '숫자만 채우면 이 페이지가 바로 계산을 시작합니다.</div>';
+
+    var 버튼 = 요리들.map(function(x){
+      return '<button class="tab ' + (x.nm === 요리.nm ? "on" : "") + '" data-pfx-pick="' + esc(x.nm) + '">'
+           + x.em + " " + esc(x.nm) + '</button>';
+    }).join("");
+
+    var 재료행 = 요리.재료.map(function(m){
+      return '<tr><th>' + esc(m) + '</th><td>' + 개수(요리.nm, m) + '개</td></tr>';
+    }).join("");
+
+    var 소모행 = 요리.재료.map(function(m){
+      var per = 개수(요리.nm, m);
+      return '<tr><th>' + esc(m) + '</th>'
+        + '<td data-pfx-per="' + per + '">' + (per * n).toLocaleString() + '개</td></tr>';
+    }).join("");
+
+    var 총액 = 판 === null ? null : 판 * n;
+
+    return (typeof crumb === "function" ? crumb() : "")
+    + '<h1 class="page-title">💰 요리 수익 계산기</h1>'
+    + '<p class="page-desc">판매용 요리를 만들어 팔았을 때의 수익과, 농사로 준비해야 할 재료 양을 계산합니다.</p>'
+    + 안내
+    + '<div class="section"><h3 class="section-h">요리 선택</h3><div class="pfx-grid">' + 버튼 + '</div></div>'
+
+    + '<div class="section"><h3 class="section-h">' + 요리.em + " " + esc(요리.nm) + ' · 1개 기준</h3>'
+    +   '<table class="tbl">'
+    +     '<tr><th>재료</th><td><b>필요 개수</b></td></tr>' + 재료행
+    +     '<tr><th>판매가</th><td>' + 돈(판) + '</td></tr>'
+    +   '</table>'
+    + '</div>'
+
+    + '<div class="section"><h3 class="section-h">수량별 계산</h3>'
+    +   '<p class="pfx-note" style="margin:0 0 10px">만들 개수 '
+    +     '<input class="pfx-qty" id="pfxQty" type="text" inputmode="numeric" autocomplete="off" value="' + esc(상태.수량) + '"> 개</p>'
+    +   '<table class="tbl">'
+    +     '<tr><th>재료</th><td><b>총 필요량</b></td></tr>' + 소모행
+    +   '</table>'
+    +   '<div class="pfx-sum">'
+    +     '<div class="pfx-card"><span class="k">개당 판매가</span>'
+    +       '<span class="v">' + (판 === null ? '<span class="pfx-none" style="font-size:15px">정보 없음</span>' : 판.toLocaleString()) + '</span></div>'
+    +     '<div class="pfx-card"><span class="k">총 판매량</span>'
+    +       '<span class="v" data-pfx-cnt>' + n.toLocaleString() + '<span class="u">개</span></span></div>'
+    +     '<div class="pfx-card main"><span class="k">총 수익</span>'
+    +       '<span class="v"' + (판 === null ? '' : ' data-pfx-sum="' + 판 + '"') + '>'
+    +         (총액 === null ? '<span class="pfx-none" style="font-size:15px">정보 없음</span>' : 총액.toLocaleString()) + '</span></div>'
+    +   '</div>'
+    +   '<p class="pfx-note">위 <b>총 필요량</b>이 농사로 준비해야 할 재료 양입니다. '
+    +     '요리 1개당 재료 개수는 위키에 정보가 없어 모두 1개로 계산했습니다.</p>'
+    + '</div>'
+
+    ;
+  };
+
+  document.addEventListener("click", function(e){
+    if(!e.target || !e.target.closest) return;
+    var p = e.target.closest("[data-pfx-pick]");
+    if(p){ 상태.고른요리 = p.getAttribute("data-pfx-pick"); render(); }
+  });
+
+  function 수량갱신(){
+    var n = Math.max(1, parseInt(상태.수량, 10) || 1);
+    function 각각(sel, fn){ Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
+    각각("[data-pfx-per]", function(td){
+      td.textContent = ((Number(td.getAttribute("data-pfx-per")) || 0) * n).toLocaleString() + "개";
+    });
+    각각("[data-pfx-sum]", function(td){
+      td.textContent = ((Number(td.getAttribute("data-pfx-sum")) || 0) * n).toLocaleString();
+    });
+    각각("[data-pfx-cnt]", function(el){
+      el.innerHTML = n.toLocaleString() + '<span class="u">개</span>';
+    });
+  }
+
+  document.addEventListener("input", function(e){
+    var el = e.target;
+    if(!el || el.id !== "pfxQty") return;
+    var 원래 = el.value, 정리 = 원래.replace(/[^0-9]/g, "");
+    if(정리 !== 원래){
+      var pos = (el.selectionStart || 0) - (원래.length - 정리.length);
+      el.value = 정리;
+      try{ el.setSelectionRange(pos, pos); }catch(err){}
+    }
+    상태.수량 = 정리;
+    수량갱신();
+  });
+
   try{
     route = Object.assign({ sub:0, pick:null }, parseHash());
     if(typeof syncOpenTop === "function") syncOpenTop();
