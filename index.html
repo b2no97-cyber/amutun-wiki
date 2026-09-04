@@ -1042,7 +1042,7 @@ const POPULAR = [
   { ico:"✨", nm:"인챈트 도감", sub:"104종",      href:"#/p/ench-무기" },
   { ico:"🍳", nm:"요리 도감",   sub:"13종",       href:"#/p/cook-판매용 요리" },
   { ico:"📖", nm:"인챈트 원리", sub:"중첩 규칙",  href:"#/p/ench-rule" },
-  { ico:"👾", nm:"보스 몬스터", sub:"쇼발 몇마리에요?",    href:"#/p/mob-boss" },
+  { ico:"👾", nm:"보스 몬스터", sub:"아직 미정",    href:"#/p/mob-boss" },
 ];
 const UPDATES = [
   { tag:"무기",   txt:"무기 제작 재료 개정판 반영 (공명석 추가)", date:"2026.08.14" },
@@ -2085,7 +2085,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
       + '<div class="tabs">' + 목록 + '</div>'
       + (고른
           ? '<div class="section">'
-          +   '<h3 class="section-h">💀👾 ' + esc(고른.nm) + '</h3>'
+          +   '<h3 class="section-h">💀 ' + esc(고른.nm) + '</h3>'
           +   상세(고른)
           + '</div>'
           : '');
