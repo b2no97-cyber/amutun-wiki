@@ -1419,7 +1419,16 @@ function pageCook(){
         <tr><th>${em} ${nm}</th>
             <td><div class="chips">${mats.map(m=>`<span class="chip">${esc(m)}</span>`).join("")}</div></td>
             <td>${esc(buff||"-")}</td>
-            <td>${esc(dur||"-")}</td></tr>`).join("")}` : `
+            <td>${esc(dur||"-")}</td></tr>`).join("")}` :
+      /* [추가] 판매용 요리 탭일 때는 판매가 열을 함께 표시 (요리 수익 계산기의 window.판매가 재사용) */
+      (route.arg==="판매용 요리" && typeof window.판매가!=="undefined") ? `
+      <tr><th>요리</th><td><b>재료 조합</b></td><td><b>판매가</b></td></tr>
+      ${item.recipes.map(([nm,em,mats])=>{
+        const 가 = window.판매가[nm];
+        const 가격표시 = (가===undefined||가===null) ? "정보 없음" : Number(가).toLocaleString()+" 마플";
+        return `
+        <tr><th>${em} ${nm}</th><td><div class="chips">${mats.map(m=>`<span class="chip">${esc(m)}</span>`).join("")}</div></td><td>${esc(가격표시)}</td></tr>`;
+      }).join("")}` : `
       <tr><th>요리</th><td><b>재료 조합</b></td></tr>
       ${item.recipes.map(([nm,em,mats])=>`
         <tr><th>${em} ${nm}</th><td><div class="chips">${mats.map(m=>`<span class="chip">${esc(m)}</span>`).join("")}</div></td></tr>`).join("")}`}
@@ -2224,7 +2233,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
     if(!BOSS_DUNGEONS.length) return '<div class="crumb">몬스터 도감 › 보스 몬스터</div><h1 class="page-title">보스 몬스터</h1><div class="empty"><strong>준비 중인 문서입니다</strong>보스 몬스터 데이터가 등록되면 이곳에 표시됩니다.</div>';
     선택 = Math.max(0, Math.min(선택, BOSS_DUNGEONS.length-1));
     var 던전 = BOSS_DUNGEONS[선택];
-    return '<div class="crumb">몬스터 도감 › 보스 몬스터</div><h1 class="page-title">보스 몬스터</h1><p class="page-desc">던전을 선택하면 해당 던전의 보스 정보가 표시됩니다.</p><div class="tabs">'+BOSS_DUNGEONS.map(function(d,i){return '<button class="tab '+(i===선택?'on':'')+'" data-boss-dungeon="'+i+'">'+esc(d.name)+'</button>';}).join('')+'</div><div class="section"><h3 class="section-h">'+esc(던전.name)+' 보스</h3><div class="boss-list">'+던전.bosses.map(상세).join('')+'</div></div>';
+    return '<div class="crumb">몬스터 도감 › 보스 몬스터</div><h1 class="page-title">보스 몬스터</h1><p class="page-desc">던전을 선택하면 해당 던전의 보스 정보가 표시됩니다.</p><div class="tabs">'+BOSS_DUNGEONS.map(function(d,i){return '<button class="tab '+(i===선택?'on':'')+'" data-boss-dungeon="'+i+'">'+esc(d.name)+'</button>';}).join('')+'</div><div class="section"><h3 class="section-h">'+esc(던전.name)+'</h3><div class="boss-list">'+던전.bosses.map(상세).join('')+'</div></div>';
   }
 
   function 사이드바(){
@@ -4050,20 +4059,21 @@ html[data-theme="dark"] .pfx-card.main .v{color:var(--green);}
          null 로 두면 "정보 없음" 으로 표시됩니다.
      ══════════════════════════════════════════════════════════════ */
   var 판매가 = {
-    "글레이즈드 햄": null,
-    "연어 초밥":     null,
-    "대구 초밥":     null,
-    "소고기 꼬치":   null,
-    "닭 꼬치":       null,
-    "베이컨과 달걀": null,
-    "계란토스트":    null,
-    "피쉬앤칩스":    null,
-    "사과파이":      null,
-    "도넛":          null,
-    "초콜릿 우유":   null,
-    "막대사탕":      null,
-    "솜사탕":        null
+    "글레이즈드 햄": 8000,
+    "연어 초밥":     7000,
+    "대구 초밥":     7500,
+    "소고기 꼬치":   6000,
+    "닭 꼬치":       6500,
+    "베이컨과 달걀": 4000,
+    "계란토스트":    2000,
+    "피쉬앤칩스":    13000,
+    "사과파이":      5000,
+    "도넛":          2600,
+    "초콜릿 우유":   2000,
+    "막대사탕":      2000,
+    "솜사탕":        2500
   };
+  window.판매가 = 판매가; // [추가] 요리정보(판매용 요리) 페이지에서도 판매가를 쓰기 위해 전역에 노출
 
   /* 요리 1개를 만들 때 재료가 몇 개 드는지. 기본 1개.
      다른 것만 적어주세요. 예)  "글레이즈드 햄|돼지고기": 3   */
