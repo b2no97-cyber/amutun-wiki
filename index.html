@@ -3231,5 +3231,318 @@ html[data-theme="dark"] .hero{
 }
 </style>
 
+
+<!-- ════════ [추가] 해시 라우팅 확장 - 주소로 항목 열기/뒤로가기 (기존 코드 무수정 · 추가 전용) ════════ -->
+<script id="hash-route-ext-script">
+(function(){
+  if(typeof parseHash !== "function" || typeof render !== "function") return;
+  var 원본parseHash = parseHash;
+
+  /* 카테고리만 영문 슬러그로 두고, 항목 이름은 한글 그대로 쓴다 */
+  var 인챈트슬러그 = { "무기":"weapon", "도구":"tool", "방어구":"armor" };
+  var 요리슬러그   = { "판매용 요리":"sell", "버프용 요리":"buff" };
+  function 뒤집기(o){ var r={}; Object.keys(o).forEach(function(k){ r[o[k]] = k; }); return r; }
+  var 인챈트역 = 뒤집기(인챈트슬러그), 요리역 = 뒤집기(요리슬러그);
+
+  function 하이픈(v){ return String(v).replace(/\s+/g, "-"); }
+  function 정규화(v){ return String(v).replace(/[\s-]+/g, ""); }
+  function 목록에서(목록, 값){                       /* 공백/하이픈 차이를 무시하고 찾기 */
+    var t = 정규화(값);
+    for(var i = 0; i < 목록.length; i++) if(정규화(목록[i]) === t) return 목록[i];
+    return null;
+  }
+
+  /* ── 현재 상태 → 주소 ── */
+  function 주소만들기(r){
+    if(!r) return null;
+
+    if(r.page === "weapon" && r.arg)
+      return "#weapon/" + 하이픈(r.arg) + "-" + ((r.sub | 0) + 1);
+
+    if(r.page === "ench" && 인챈트슬러그[r.arg]){
+      var c = (typeof enchData !== "undefined") && enchData[r.arg];
+      if(!c) return null;
+      var 탭 = Object.keys(c.items);
+      var u = "#enchant/" + 인챈트슬러그[r.arg] + "/" + 하이픈(탭[r.sub | 0] || 탭[0]);
+      if(r.pick) u += "/" + 하이픈(r.pick);
+      return u;
+    }
+
+    if(r.page === "cook" && 요리슬러그[r.arg]){
+      var k = (typeof cookData !== "undefined") && cookData[r.arg];
+      if(!k) return null;
+      var 탭2 = Object.keys(k.items);
+      return "#cooking/" + 요리슬러그[r.arg] + "/" + 하이픈(탭2[r.sub | 0] || 탭2[0]);
+    }
+    return null;
+  }
+
+  /* ── 주소 → 상태 ── */
+  window.parseHash = function(){
+    var h = decodeURIComponent(String(location.hash || "").replace(/^#\/?/, ""));
+    var p = h.split("/").filter(function(x){ return x !== ""; });
+    var head = p[0];
+
+    /* #weapon/이름-단계 */
+    if(head === "weapon" && p.length > 1 && typeof weaponsData !== "undefined"){
+      var 뒤 = p.slice(1).join("/");
+      var m = 뒤.match(/^(.*)-(\d+)$/);
+      var 이름 = 목록에서(Object.keys(weaponsData), m ? m[1] : 뒤);
+      if(이름){
+        var 단계 = m ? (parseInt(m[2], 10) - 1) : 0;
+        var 총 = weaponsData[이름].stages.length;
+        if(!(단계 >= 0 && 단계 < 총)) 단계 = 0;
+        return { page:"weapon", arg:이름, sub:단계, pick:null, navId:"item-weapon" };
+      }
+    }
+
+    /* #enchant/카테고리/탭/인챈트 */
+    if(head === "enchant" && p.length > 1 && typeof enchData !== "undefined"){
+      var 분류 = 인챈트역[p[1]];
+      if(분류 && enchData[분류]){
+        var 탭목록 = Object.keys(enchData[분류].items);
+        var sub = 0, pick = null;
+        if(p[2]){
+          var 탭 = 목록에서(탭목록, p[2]);
+          if(탭){ sub = 탭목록.indexOf(탭); if(p[3]) pick = p[3].replace(/-/g, " "); }
+          else pick = p[2].replace(/-/g, " ");     /* 탭을 건너뛴 짧은 주소도 허용 */
+        }
+        if(pick && typeof getEnchInfo === "function" && !getEnchInfo(pick)) pick = null;
+        return { page:"ench", arg:분류, sub:sub, pick:pick, navId:"ench-" + 분류 };
+      }
+    }
+
+    /* #cooking/카테고리/탭 */
+    if(head === "cooking" && p.length > 1 && typeof cookData !== "undefined"){
+      var 종류 = 요리역[p[1]];
+      if(종류 && cookData[종류]){
+        var 탭들 = Object.keys(cookData[종류].items);
+        var s2 = 0;
+        if(p[2]){ var t2 = 목록에서(탭들, p[2]); if(t2) s2 = 탭들.indexOf(t2); }
+        return { page:"cook", arg:종류, sub:s2, pick:null, navId:"cook-" + 종류 };
+      }
+    }
+
+    return 원본parseHash();          /* 그 외 주소는 기존 규칙 그대로 */
+  };
+
+  /* ── 클릭 후 주소만 갱신 (화면은 기존 코드가 이미 그렸으므로 다시 그리지 않음) ──
+     history.pushState 는 hashchange 를 일으키지 않아 재렌더링이 없고,
+     뒤로가기를 누르면 브라우저가 hashchange 를 쏘아 기존 핸들러가 복원한다.       */
+  var 갱신대기 = false;
+  function 주소갱신(덮어쓰기){
+    if(갱신대기) return;
+    갱신대기 = true;
+    setTimeout(function(){
+      갱신대기 = false;
+      try{
+        var 새주소 = 주소만들기(typeof route !== "undefined" ? route : null);
+        if(!새주소) return;
+        var 현재 = location.hash || "";
+        if(decodeURIComponent(현재) === decodeURIComponent(새주소)) return;
+        /* 사이드바·목록에서 넘어온 직후에는 이미 기록이 하나 쌓여 있으므로
+           덮어써서 뒤로가기를 두 번 눌러야 하는 일이 없게 한다 */
+        if(덮어쓰기) history.replaceState(null, "", 새주소);
+        else         history.pushState(null, "", 새주소);
+      }catch(e){}
+    }, 0);
+  }
+
+  document.addEventListener("click", function(e){
+    if(!e.target || !e.target.closest) return;
+    if(e.target.closest("[data-sub]") || e.target.closest("[data-ench]")) 주소갱신(false);
+  });
+
+  /* 사이드바·목록의 <a href="#/..."> 로 들어온 주소도 새 형식으로 통일한다.
+     기존 hashchange 핸들러가 먼저 화면을 그린 뒤 주소만 조용히 바꿔치기 */
+  window.addEventListener("hashchange", function(){ 주소갱신(true); });
+
+  /* 뒤로/앞으로 갈 때 주소만 바뀌고 hashchange 가 안 오는 경우를 대비 */
+  window.addEventListener("popstate", function(){
+    try{
+      route = Object.assign({ sub:0, pick:null }, parseHash());
+      if(typeof syncOpenTop === "function") syncOpenTop();
+      render();
+    }catch(e){}
+  });
+
+  /* 이 스크립트가 붙기 전에 이미 첫 라우팅이 끝났으므로, 새 주소 규칙으로 한 번 다시 반영 */
+  try{
+    route = Object.assign({ sub:0, pick:null }, parseHash());
+    if(typeof syncOpenTop === "function") syncOpenTop();
+    render();
+  }catch(e){}
+})();
+</script>
+
+
+<!-- ════════ [추가] 무기 재료 계산기 (기존 코드 무수정 · 추가 전용) ════════ -->
+<style id="calc-style">
+.calcx-grid{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;}
+.calcx-have{
+  width:82px;padding:5px 8px;box-sizing:border-box;
+  border:1px solid var(--line);border-radius:6px;
+  background:var(--panel);color:var(--ink);font:inherit;font-size:13px;text-align:right;
+}
+.calcx-have:focus{outline:none;border-color:var(--green);}
+.calcx-lack{color:#D64545;font-weight:700;}
+.calcx-ok{color:var(--green);font-weight:700;}
+html[data-theme="dark"] .calcx-lack{color:#FF8A8A;}
+.calcx-note{color:var(--ink-soft);font-size:12px;margin:8px 0 0;}
+</style>
+<script id="calc-script">
+(function(){
+  if(typeof NAV === "undefined" || typeof PAGES === "undefined") return;
+  if(typeof weaponsData === "undefined" || typeof render !== "function") return;
+
+  /* ── 사이드바에 항목 하나만 추가 ── */
+  var 아이템 = null;
+  for(var i = 0; i < NAV.length; i++) if(NAV[i].id === "item") 아이템 = NAV[i];
+  if(!아이템 || !아이템.children) return;
+  if(!아이템.children.some(function(c){ return c.id === "item-calc"; }))
+    아이템.children.push({ id:"item-calc", label:"재료 계산기", page:"calc" });
+
+  /* ── 상태 (이 페이지 안에서만 씀) ── */
+  var 무기목록 = Object.keys(weaponsData);
+  var 상태 = { 무기: 무기목록[0], 단계: 무기목록.length ? weaponsData[무기목록[0]].stages.length - 1 : 0, 보유: {} };
+
+  function esc(v){
+    return String(v).replace(/[&<>"]/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c];
+    });
+  }
+  function 나누기(t){
+    var m = String(t).match(/^(.*?)\s*\((\d+)개\)$/);
+    return { nm: m ? m[1].trim() : String(t).trim(), qty: m ? parseInt(m[2],10) : 1 };
+  }
+
+  /* ── 합산: I단계부터 목표 단계까지 ──
+     · 직전 단계 무기(예: 더스크 블레이드 III)는 만들어서 쓰는 것이므로 제외
+     · 다이아몬드 검 10강처럼 같은 무기의 이전 단계가 아닌 것은 그대로 포함
+     · 필수재료와 공명석은 따로 모은다                                        */
+  function 합산(무기, 목표){
+    var w = weaponsData[무기];
+    if(!w) return null;
+    var 일반 = [], 필수 = [], 색인 = {}, 금액 = 0;
+    function 담기(칸, nm, qty, 분류){
+      var k = 칸 === 필수 ? "E:" + nm : "N:" + nm;
+      if(색인[k]){ 색인[k].qty += qty; return; }
+      색인[k] = { nm:nm, qty:qty, 분류:분류 };
+      칸.push(색인[k]);
+    }
+    for(var s = 0; s <= 목표 && s < w.stages.length; s++){
+      var st = w.stages[s];
+      var c = String(st.cost || "").replace(/[^0-9]/g, "");
+      if(c) 금액 += parseInt(c, 10);
+      st.rows.forEach(function(row){
+        var 분류 = row[0];
+        row[1].forEach(function(t){
+          var d = 나누기(t);
+          if(분류 === "무기" && d.nm.indexOf(무기) === 0) return;   /* 중간 단계 무기 */
+          var 필수인가 = (분류 === "필수재료") || /공명석$/.test(d.nm);
+          담기(필수인가 ? 필수 : 일반, d.nm, d.qty, 분류);
+        });
+      });
+    }
+    일반.sort(function(a,b){ return b.qty - a.qty; });
+    필수.sort(function(a,b){ return a.nm.localeCompare(b.nm, "ko"); });
+    return { 일반:일반, 필수:필수, 금액:금액 };
+  }
+
+  function 수량표시(nm, 필요){
+    var 보유 = 상태.보유[nm];
+    if(보유 === undefined || 보유 === "" || isNaN(보유)) return '<span class="calcx-note">-</span>';
+    var 모자람 = 필요 - Number(보유);
+    return 모자람 > 0
+      ? '<span class="calcx-lack">' + 모자람.toLocaleString() + '개 부족</span>'
+      : '<span class="calcx-ok">충분</span>';
+  }
+
+  function 표(목록){
+    return '<table class="tbl">'
+      + '<tr><th>재료</th><td><b>구분</b></td><td><b>필요 수량</b></td><td><b>보유</b></td><td><b>부족분</b></td></tr>'
+      + 목록.map(function(m){
+          return '<tr><th>' + esc(m.nm) + '</th>'
+            + '<td>' + esc(m.분류) + '</td>'
+            + '<td>' + m.qty.toLocaleString() + '개</td>'
+            + '<td><input class="calcx-have" type="number" min="0" inputmode="numeric"'
+            +   ' data-calc-have="' + esc(m.nm) + '" data-calc-need="' + m.qty + '"'
+            +   ' value="' + (상태.보유[m.nm] === undefined ? "" : esc(상태.보유[m.nm])) + '"'
+            +   ' placeholder="0"></td>'
+            + '<td data-calc-cell="' + esc(m.nm) + '">' + 수량표시(m.nm, m.qty) + '</td></tr>';
+        }).join("")
+      + '</table>';
+  }
+
+  PAGES.calc = function(){
+    var 무기 = 상태.무기, w = weaponsData[무기];
+    if(!w) return '<div class="empty"><strong>무기 정보를 찾을 수 없습니다</strong></div>';
+    var 총단계 = w.stages.length;
+    if(상태.단계 >= 총단계) 상태.단계 = 총단계 - 1;
+    var r = 합산(무기, 상태.단계);
+    var 로마 = (typeof ROMAN !== "undefined") ? ROMAN : ["I","II","III","IV","V","VI"];
+
+    return (typeof crumb === "function" ? crumb() : "")
+    + '<h1 class="page-title">🧮 재료 계산기</h1>'
+    + '<p class="page-desc">무기와 목표 단계를 고르면 I단계부터 그 단계까지 필요한 재료를 모두 더해서 보여줍니다. '
+    +   '중간 단계 무기는 직접 만들어 쓰는 것이므로 재료에서 빠집니다.</p>'
+    + '<div class="section"><h3 class="section-h">무기 선택</h3>'
+    +   '<div class="calcx-grid">'
+    +   무기목록.map(function(n){
+          return '<button class="tab ' + (n === 무기 ? "on" : "") + '" data-calc-w="' + esc(n) + '">' + esc(n) + '</button>';
+        }).join("")
+    +   '</div>'
+    +   '<h3 class="section-h">목표 단계</h3>'
+    +   '<div class="tabs">'
+    +   w.stages.map(function(_, i){
+          return '<button class="tab ' + (i === 상태.단계 ? "on" : "") + '" data-calc-s="' + i + '">' + 로마[i] + '</button>';
+        }).join("")
+    +   '</div></div>'
+    + '<div class="section"><h3 class="section-h">'
+    +   esc(무기) + ' ' + 로마[상태.단계] + ' 까지 필요한 재료 (' + r.일반.length + '종)</h3>'
+    +   표(r.일반)
+    +   '<p class="calcx-note">보유 수량을 입력하면 부족분만 표시됩니다.</p></div>'
+    + (r.필수.length
+        ? '<div class="section"><h3 class="section-h">필수재료 (' + r.필수.length + '종)</h3>'
+          + 표(r.필수)
+          + '<p class="calcx-note">공명석처럼 단계 제작에 반드시 필요한 특수 재료입니다.</p></div>'
+        : "")
+    + '<div class="section"><h3 class="section-h">제작 금액 합계</h3>'
+    +   '<table class="tbl"><tr><th>I ~ ' + 로마[상태.단계] + ' 단계 합계</th><td><b>'
+    +   r.금액.toLocaleString() + '</b> 마플</td></tr></table></div>';
+  };
+
+  /* ── 무기 / 단계 버튼 ── */
+  document.addEventListener("click", function(e){
+    if(!e.target || !e.target.closest) return;
+    var bw = e.target.closest("[data-calc-w]");
+    if(bw){ 상태.무기 = bw.getAttribute("data-calc-w"); 상태.단계 = weaponsData[상태.무기].stages.length - 1; render(); return; }
+    var bs = e.target.closest("[data-calc-s]");
+    if(bs){ 상태.단계 = parseInt(bs.getAttribute("data-calc-s"), 10) || 0; render(); return; }
+  });
+
+  /* ── 보유 수량 입력: 다시 그리지 않고 해당 칸만 고쳐서 입력이 끊기지 않게 ── */
+  document.addEventListener("input", function(e){
+    var el = e.target;
+    if(!el || !el.getAttribute || !el.getAttribute("data-calc-have")) return;
+    var nm = el.getAttribute("data-calc-have");
+    var 필요 = parseInt(el.getAttribute("data-calc-need"), 10) || 0;
+    var v = el.value.trim();
+    if(v === "") delete 상태.보유[nm]; else 상태.보유[nm] = Number(v);
+    var cell = document.querySelector('[data-calc-cell="' + nm.replace(/"/g, '\\"') + '"]');
+    if(cell) cell.innerHTML = 수량표시(nm, 필요);
+  });
+
+  /* 메뉴를 늦게 추가했으므로 현재 주소를 다시 한 번 해석해 반영 */
+  try{
+    route = Object.assign({ sub:0, pick:null }, parseHash());
+    if(typeof syncOpenTop === "function") syncOpenTop();
+    render();
+  }catch(e){
+    if(typeof renderSidebar === "function") renderSidebar();
+  }
+})();
+</script>
+
 </body>
 </html>
