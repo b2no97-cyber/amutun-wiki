@@ -1274,11 +1274,12 @@ function pageAccessories(){
   <p class="page-desc">장신구의 종류와 강화 수치를 확인할 수 있습니다.</p>
   <!-- style 속성을 직접 추가하여 한 줄에 4개씩(repeat(4, 1fr)) 강제 배치합니다 -->
   <div class="list" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
-    ${ACCESSORY_NAMES.map(n=>`<a class="list-item" href="#/p/item-acc/${encodeURIComponent(n)}" style="box-sizing: border-box;">
-      <div class="nm">${esc(n)}</div>
-      <div class="mt">효과 : ${esc(accessoryData[n].effect)}</div>
-      <div class="mt" style="margin-top:6px">강화 : 0~10강 · 수치 : ${esc(accessoryData[n].stages[0])}~${esc(accessoryData[n].stages[10])}</div>
-    </a>`).join("")}
+${ACCESSORY_NAMES.map(n=>`<a class="list-item" href="#/p/item-acc/${encodeURIComponent(n)}" style="box-sizing: border-box;">
+  <div class="nm">${esc(n)}</div>
+  <div class="mt">효과 : ${esc(accessoryData[n].effect)}</div>
+  <div class="mt" style="margin-top:6px">강화 : 0 ~ 10강</div>
+  <div class="mt" style="margin-top:2px">수치 : ${esc(accessoryData[n].stages[0])} ~ ${esc(accessoryData[n].stages[10])}</div>
+</a>`).join("")}
   </div>`;
 }
 function pageAccessory(){
