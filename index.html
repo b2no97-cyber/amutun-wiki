@@ -1258,7 +1258,7 @@ function pageWeapon(){
   return `${crumb()}
   <a class="btn-back" href="#/p/item-weapon">← 무기 목록으로</a>
   <h1 class="page-title">${WEAPON_ICON} ${name} ${ROMAN[route.sub]}</h1>
-  <p class="page-desc">${esc(w.tagline)} 재료를 클릭하면 상세 정보를 볼 수 있습니다.</p>
+  <p class="page-desc">${esc(w.tagline)} 재료를 클릭하면 상세 정보를 볼 수 있습니다. (무기 단계마다 잠겨진 스킬이 해금됩니다.)</p>
   <div class="tabs">
     ${w.stages.map((_,i)=>`<button class="tab ${i===route.sub?"on":""}" data-sub="${i}">${ROMAN[i]}</button>`).join("")}
   </div>
