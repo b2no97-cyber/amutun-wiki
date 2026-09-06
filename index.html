@@ -1611,7 +1611,22 @@ render();
 .upd-body:last-child{border-bottom:0;}
 .upd-body .meta{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft);}
 .upd-empty{padding:36px 20px;text-align:center;color:var(--ink-soft);font-size:13px;}
-@media (max-width:760px){ .upd-row .ttl{white-space:normal;} }
+@media (max-width:760px){ .upd-row .ttl{white-space:normal;overflow-wrap:anywhere;word-break:break-word;} }
+/* 주소처럼 띄어쓰기 없이 긴 글자가 와도 칸을 뚫지 않도록 */
+.upd-row .ttl,.upd-body{overflow-wrap:anywhere;}
+.upd,.upd-row{max-width:100%;}
+/* 아주 좁은 화면에서 상단 검색창이 안 줄어들어 헤더가 화면을 넘던 문제 */
+@media (max-width:760px){
+  .searchbox{min-width:0;}
+  .searchbox input{min-width:0;width:100%;}
+}
+@media (max-width:420px){ .topbar{padding:0 12px;gap:8px;} }
+/* 그리드 칸이 긴 글자에 밀려 늘어나지 않도록 */
+.home-feeds > *{min-width:0;}
+/* 칸이 좁을 때 넓은 표는 표 안에서만 가로로 밀리게 */
+.layout > *{min-width:0;}
+.xscroll{min-width:0;max-width:100%;}
+@media (max-width:760px){ .xscroll{overflow-x:auto;} }
 </style>
 <script id="discord-sync-script">
 (function(){
@@ -3499,7 +3514,7 @@ html[data-theme="dark"] .calcx-lack{color:#FF8A8A;}
   }
 
   function 표(목록){
-    return '<table class="tbl">'
+    return '<div class="xscroll"><table class="tbl">'
       + '<tr><th>재료</th><td><b>구분</b></td><td><b>필요 수량</b></td><td><b>보유</b></td><td><b>부족분</b></td></tr>'
       + 목록.map(function(m){
           return '<tr><th>' + esc(m.nm) + '</th>'
@@ -3511,7 +3526,7 @@ html[data-theme="dark"] .calcx-lack{color:#FF8A8A;}
             +   ' placeholder="0"></td>'
             + '<td data-calc-cell="' + esc(m.nm) + '">' + 수량표시(m.nm, m.qty) + '</td></tr>';
         }).join("")
-      + '</table>';
+      + '</table></div>';
   }
 
   PAGES.calc = function(){
