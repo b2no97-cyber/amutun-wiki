@@ -1611,22 +1611,7 @@ render();
 .upd-body:last-child{border-bottom:0;}
 .upd-body .meta{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft);}
 .upd-empty{padding:36px 20px;text-align:center;color:var(--ink-soft);font-size:13px;}
-@media (max-width:760px){ .upd-row .ttl{white-space:normal;overflow-wrap:anywhere;word-break:break-word;} }
-/* 주소처럼 띄어쓰기 없이 긴 글자가 와도 칸을 뚫지 않도록 */
-.upd-row .ttl,.upd-body{overflow-wrap:anywhere;}
-.upd,.upd-row{max-width:100%;}
-/* 아주 좁은 화면에서 상단 검색창이 안 줄어들어 헤더가 화면을 넘던 문제 */
-@media (max-width:760px){
-  .searchbox{min-width:0;}
-  .searchbox input{min-width:0;width:100%;}
-}
-@media (max-width:420px){ .topbar{padding:0 12px;gap:8px;} }
-/* 그리드 칸이 긴 글자에 밀려 늘어나지 않도록 */
-.home-feeds > *{min-width:0;}
-/* 칸이 좁을 때 넓은 표는 표 안에서만 가로로 밀리게 */
-.layout > *{min-width:0;}
-.xscroll{min-width:0;max-width:100%;}
-@media (max-width:760px){ .xscroll{overflow-x:auto;} }
+@media (max-width:760px){ .upd-row .ttl{white-space:normal;} }
 </style>
 <script id="discord-sync-script">
 (function(){
@@ -2045,26 +2030,26 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
     { name:"[제 1던전] 버섯 동굴", mobs:[
       { nm:"아기 머쉬", hp:150, drops:[], img:MOB_IMG["아기 머쉬"] },
       { nm:"알파 머쉬", hp:250, drops:[], img:MOB_IMG["알파 머쉬"] },
-      { nm:"엘더 머쉬", hp:400, drops:[["거대 버섯 곤봉","1.5%"]], img:MOB_IMG["엘더 머쉬"] }
+      { nm:"엘더 머쉬", hp:400, drops:[["거대 버섯 곤봉","2%"]], img:MOB_IMG["엘더 머쉬"] }
     ]},
     { name:"[제 2던전] 봉인된 지하묘지", mobs:[
-      { nm:"근접 스켈레톤",   hp:1100, drops:[["녹슨 검날","1.5%"]],       img:MOB_IMG["근접 스켈레톤"] },
-      { nm:"스켈레톤 궁수",   hp:1000, drops:[["녹슨 단검","1.5%"]],       img:MOB_IMG["스켈레톤 궁수"] },
+      { nm:"근접 스켈레톤",   hp:1100, drops:[["녹슨 검날","2%"]],       img:MOB_IMG["근접 스켈레톤"] },
+      { nm:"스켈레톤 궁수",   hp:1000, drops:[["녹슨 단검","2%"]],       img:MOB_IMG["스켈레톤 궁수"] },
       { nm:"스켈레톤 마법사", hp:800, drops:[],                          img:MOB_IMG["스켈레톤 마법사"] },
-      { nm:"정예 스켈레톤",   hp:1500, drops:[["스켈레톤의 혈석","1.5%"]], img:MOB_IMG["정예 스켈레톤"] },
+      { nm:"정예 스켈레톤",   hp:1500, drops:[["스켈레톤의 혈석","2%"]], img:MOB_IMG["정예 스켈레톤"] },
     ]},
     { name:"[제 3던전] 오래된 크롬 요새", mobs:[
-      { nm:"크롬 병사",       hp:2200,  drops:[["기사의 군번줄","1.5%"], ["하급 소켓석","0.3%"]], img:MOB_IMG["크롬 병사"] },
+      { nm:"크롬 병사",       hp:2200,  drops:[["하급 소켓석","0.3%"], ["기사의 군번줄","2%"]], img:MOB_IMG["크롬 병사"] },
     ]},
     { name:"[제 4던전] 불타는 성지", mobs:[
-      { nm:"플레일 기사",   hp:2700,  drops:[["기사의 유산","1.5%"], ["중급 소켓석","0.3%"]],    img:MOB_IMG["플레일 기사"] },
+      { nm:"플레일 기사",   hp:2700,  drops:[["중급 소켓석","0.3%"], ["기사의 유산","2%"]],    img:MOB_IMG["플레일 기사"] },
       { nm:"워해머 기사",   hp:2700,  drops:[["중급 소켓석","0.3%"]],    img:MOB_IMG["워해머 기사"] },
       { nm:"할버드 기사",   hp:2700,  drops:[["중급 소켓석","0.3%"]],    img:MOB_IMG["할버드 기사"] },
     ]},
     { name:"[제 5던전] 말라버린 정령의 숲", mobs:[
-      { nm:"사악한 늑대", hp:4000, drops:[["심연의 파편","1.5%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["사악한 늑대"] },
-      { nm:"부패한 꽃",   hp:4000, drops:[["심연의 파편","1.5%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["부패한 꽃"] },
-      { nm:"비탄의 실프", hp:4000, drops:[["심연의 파편","1.5%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["비탄의 실프"] },
+      { nm:"사악한 늑대", hp:4000, drops:[["심연의 파편","2%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["사악한 늑대"] },
+      { nm:"부패한 꽃",   hp:4000, drops:[["심연의 파편","2%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["부패한 꽃"] },
+      { nm:"비탄의 실프", hp:4000, drops:[["심연의 파편","2%"], ["상급 소켓석","0.3%"]], img:MOB_IMG["비탄의 실프"] },
     ]},
   ];
 
@@ -2240,14 +2225,14 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
      같은 던전에 보스가 여러 마리 있으면 한 탭 안에 함께 표시합니다. */
   var BOSS_DUNGEONS = window.BOSS_DUNGEONS = [
     { name:"지옥불 워리어 & 지옥불 아처", bosses:[
-      { nm:"지옥불 워리어", hp:50000, drops:[["군주의 심핵","10%"]],   img:BOSS_IMG["지옥불 워리어"] },
-      { nm:"지옥불 아처", hp:50000, drops:[["군주의 심핵","10%"]], img:BOSS_IMG["지옥불 아처"] }
+      { nm:"지옥불 워리어", hp:50000, drops:[["군주의 심핵","20%"]],   img:BOSS_IMG["지옥불 워리어"] },
+      { nm:"지옥불 아처", hp:50000, drops:[["군주의 심핵","20%"]], img:BOSS_IMG["지옥불 아처"] }
     ]},
     { name:"크로메드 팔라딘", bosses:[
-      { nm:"크로메드 팔라딘", hp:100000, drops:[["팔라딘의 증표","10%"]], img:BOSS_IMG["크로메드 팔라딘"] }
+      { nm:"크로메드 팔라딘", hp:100000, drops:[["팔라딘의 증표","20%"]], img:BOSS_IMG["크로메드 팔라딘"] }
     ]},
     { name:"지옥혈군 크라간", bosses:[
-      { nm:"지옥혈군 크라간", hp:120000, drops:[["지옥의 성배","10%"]], img:BOSS_IMG["지옥혈군 크라간"] }
+      { nm:"지옥혈군 크라간", hp:120000, drops:[["지옥의 성배","20%"]], img:BOSS_IMG["지옥혈군 크라간"] }
     ]},
   ];
   var 선택 = 0, 그리는중 = false;
@@ -2410,7 +2395,7 @@ html[data-theme="dark"] .mobd-pic img{filter:none;}
     "마그마 크림":    { kind:"바닐라 제작 · 조합대", mats:["슬라임 볼 (1개)", "블레이즈 가루 (1개)"] },
     "발효된 거미 눈": { kind:"바닐라 제작 · 조합대", mats:["거미 눈 (1개)", "설탕 (1개)", "갈색 버섯 (1개)"] },
     "전달체":         { kind:"바닐라 제작 · 조합대", mats:["앵무조개 껍데기 (8개)", "바다의 심장 (1개)"] },
-    "조율된 스컬크 감지체": { kind:"바닐라 제작 · 조합대", mats:["스컬크 감지체 (1개)", "메아리 조각 (1개)"] },
+    "조율된 스컬크 감지체": { kind:"바닐라 제작 · 조합대", mats:["스컬크 감지체 (1개)", "자수정 조각 (1개)"] },
     "신속의 화살":    { kind:"바닐라 제작 · 조합대 (8개 생산)", mats:["화살 (8개)", "신속의 잔류형 물약 (1개)"] },
     "도약의 화살":    { kind:"바닐라 제작 · 조합대 (8개 생산)", mats:["화살 (8개)", "도약의 잔류형 물약 (1개)"] },
     "수지 벽돌":      { kind:"바닐라 제작 · 화로", mats:["수지 덩어리 (1개)를 제련"] },
@@ -2569,7 +2554,7 @@ html[data-theme="dark"] .craftx-ico{filter:none;}
     "수지 블록": "data:image/webp;base64, UklGRugBAABXRUJQVlA4TNsBAAAvH8AHEI+gqJEk5bV4zOhf0Yk4SQraSFKDd/fMzIJecSRJyQluTwIg/+B4uc1/zK+DvtRJyD7GxAD4o6GwxGqo+DxlGcDblendekE0T2XFBWCQINt22zb4aP+zACC1/91CdsoK3o3o/wR8/vM1Nf7FO3gYzL81JR5JQ2v+jffenzU1bgR/Mm5gasCD7mdJGr9h6WVq3GgfengZPN+Yg/VyS3PcgwVT27Pmu10x4Ib1zPuRXmnc41kDlbbF4deSNCbPhu419ZCpbKf8OGNqPe9gSmIBtWRLdXPCj/BY89UtDWk9lksWyb7EFafkOua4YUg1y6QE/HB6P1DgU0vFyCVl0Ld+nArv4dCPq+VqVYkG1srmZ1zhIQCRi2UlaqNYtS36GU7oCryrSi0bTaUa+Qvdw4+L6OCmtkFNWNsOeVzhAd4Dy61ipSrlAl8CPwPp8IuwkhFSoqZv4YEf4f30S2G1KIOskJS37mc4Xd7jkJJqaiUnFWXT5j04vEPIwXKyakmWavsWnFL36AeuyCVlkxBNxnaFQw+8w3FljKJMopDrJvkVdCfgUMlUJZmSpc8vr+gQV/TIVrKS1MrnDz28X4eTrCpjfP7idag7lkwtf/5ydyJT7PMP42z5858DAA==",
     "창백한 참나무 원목": "data:image/webp;base64, UklGRoQBAABXRUJQVlA4WAoAAAAQAAAAHwAAHwAAQUxQSC8AAAABDzD/ERECQeI2OpiASZr1SZqAhxp4ARH9D7DFNW9IbFKX9Evmj0t6k5Lwhmu2AABWUDggLgEAADAHAJ0BKiAAIAA+kTqXR6WjIiEwCACwEglnAMq5r2UBI7WTQaB5GEysdWTOZg+URzpLWkoZZQK9PgJUGSXHMk7AAAD+5yBY+Vje+O1M9gwhvbK/U6NmPYREI89zWhzbTOAZK3Sc+4A2qEc2or8v7XSjURNk/fEGMW1QzrV01mikaFrTJ2NXin+F+W9sFX52zcq33pyb7WYuT2Ck5kIYCHzV+H/mvEy1eNgdj9xmF0dfDt987KNCo3koRHTV9/n4VYUctR6XiP0YDyaXEoCPaM9s/lp/5waa/aAWp1QuurA4e8BOIGDfOQbiQWD1TodictyeRTKJt95T5jxjiHe7a/hpXKSOz7zFHbhZCsoAJBDfNylMsPS5vTXCY+UEPR6zmFTaEae+9JdASlI5F0AA",
     "크리킹 심장": "data:image/webp;base64, UklGRhwCAABXRUJQVlA4TA8CAAAvH8AHEO+gsG3bxnaS7vn/rUXfUBhJknF3byv/OA2FbRspx/dM+2+K8x+rlcaYS0YiAiQU4h8QOBe8gvoiEmNEz/wDXBF9Br299zXrwAG7Calot9hFlMtHUYO7eVmpMUCQbattQ5FB9VsQMEgo3v8+UeoK3ovo/wS8//mW0P7iKoh48fqtLbYSD7bltbTfaExLLEdCQUQq20+uiIUlJpJELBGN13daAXAwxSWhgEwFEcB2d7WEpSAhooDxKAtjKuDVPtnlujVGIAFLTIhIBTFFvJpMXQVy44tLORIWAkdJBRsFeHSnPTNrYyrLwYSC9moXpseupps6n7l65La1iwVA4iaTAEpw43FitjU/r1dCTO2aRIkC9D51ntbPsBVA/kTjQ6CVGE3scjOTCLAkz5onUbsYKpJ6N90avA2cPWgrngK1G1LTGcDdfNADwc/gmZ+7ghjX9Z3/CPyqQgwVR2e0G0bobg4rA1f44E9m0QZudBwwOvDGkysZ1uB5ZjFOj24g9OjUnfVk6AhftRsHAhpwhOm85elnkusHw6xHOnIwSpPq5iRz9ZytDyvDMDrAaIIOdzWDsKHjGgZHDeOM4rALu3wzwyPAeg0H0YZK7zJJR9ZMy9XOAIPRVKIw7JTp/c1cT0vPmTAKuyhierx/mE+SlrNWkElN+/sX87NazjsFk7x/OVecMkHef5jrhPc/BwA=",
-
+    "자수정 조각": "data:image/webp;base64, UklGRsQAAABXRUJQVlA4TLcAAAAvn8AnEBa3sW3HSV2ugj4ohhroh5pI72iPvgfJTtl+9DKJQIDiZD8sscYQjyALMPGfSiq9KSQwgf5PQH9h86JkuA8g+NiT3QBafoK3CMM8P3iv0PITfENC//CEVxfae4InDHNCwRnUyhNcMMwJJwzjsBfSKhNcQckfCoZx2AtplQnOyG+4YBiHvZD2mUNBsuCEYRz24lpqYQXDOOwFt9kEHRKHvYr2GSV0QsFebfuMKmhvSvtsvxAA"
   };
 
   /* 조합대 : cells = 9칸 (빈칸은 null), out = [결과, 개수]
@@ -2619,9 +2604,9 @@ html[data-theme="dark"] .craftx-ico{filter:none;}
     },
     "조율된 스컬크 감지체": {
       type:"craft", shapeless:true,
-      cells:["스컬크 감지체","메아리 조각",null,null,null,null,null,null,null],
+      cells:["스컬크 감지체","자수정 조각",null,null,null,null,null,null,null],
       out:["조율된 스컬크 감지체", 1],
-      note:"<b>메아리 조각</b>은 고대 도시의 상자에서 얻어요."
+      note:"<b>섬세한 손길</b>이 부여된 <b>도구</b>로 스컬크 감지체를 부숴야 해요."
     },
     "전달체": {
       type:"craft",
@@ -3514,7 +3499,7 @@ html[data-theme="dark"] .calcx-lack{color:#FF8A8A;}
   }
 
   function 표(목록){
-    return '<div class="xscroll"><table class="tbl">'
+    return '<table class="tbl">'
       + '<tr><th>재료</th><td><b>구분</b></td><td><b>필요 수량</b></td><td><b>보유</b></td><td><b>부족분</b></td></tr>'
       + 목록.map(function(m){
           return '<tr><th>' + esc(m.nm) + '</th>'
@@ -3526,7 +3511,7 @@ html[data-theme="dark"] .calcx-lack{color:#FF8A8A;}
             +   ' placeholder="0"></td>'
             + '<td data-calc-cell="' + esc(m.nm) + '">' + 수량표시(m.nm, m.qty) + '</td></tr>';
         }).join("")
-      + '</table></div>';
+      + '</table>';
   }
 
   PAGES.calc = function(){
