@@ -114,6 +114,7 @@ button{font-family:inherit;color:inherit;cursor:pointer;}
 .home-feeds{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;align-items:start;}
 .feed-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
 .feed-head .section-h{flex:1;margin-bottom:12px;}
+.feed-head .home-feed-tabs{margin-bottom:0;}
 .feed-more{
   font-size:12px;font-weight:600;color:var(--ink-soft);white-space:nowrap;
   padding-bottom:8px;border-bottom:1px solid var(--line);
@@ -1079,7 +1080,7 @@ const GRP_COLOR = { normal:"#b0a89a", debuff:"#d64545", cyan:"#22a5b8", blue:"#3
 
 /* 메인 페이지용 (샘플 데이터 — 실제 내용으로 교체 예정) */
 const POPULAR = [
-  { ico:"🗡️", nm:"무기 도감",   sub:"5종 · I~VI", href:"#/p/item-weapon" },
+  { ico:"🗡️", nm:"무기 도감",   sub:"8종 · I~VI", href:"#/p/item-weapon" },
   { ico:"✨", nm:"인챈트 도감", sub:"104종",      href:"#/p/ench-무기" },
   { ico:"🍳", nm:"요리 도감",   sub:"13종",       href:"#/p/cook-판매용 요리" },
   { ico:"📖", nm:"인챈트 원리", sub:"중첩 규칙",  href:"#/p/ench-rule" },
@@ -1242,24 +1243,19 @@ function pageHome(){
       ${POPULAR.map(p=>`<a class="card" href="${p.href}"><span class="ico">${p.ico}</span><span class="nm">${p.nm}</span><span class="sub">${p.sub}</span></a>`).join("")}
     </div>
   </div>
-  <div class="home-feeds">
-    <div class="feed">
-      <div class="feed-head">
-        <h3 class="section-h">최근 공지</h3>
-        <a class="feed-more" href="#/p/etc-notice">전체 보기</a>
+  <div class="section">
+    <div class="feed-head">
+      <div class="tabs home-feed-tabs">
+        <button type="button" class="tab on" data-home-feed="notice">최근 공지</button>
+        <button type="button" class="tab" data-home-feed="update">최근 업데이트</button>
       </div>
-      <div class="upd" data-feed="notice">
-        <div class="upd-row upd-dim">불러오는 중…</div>
-      </div>
+      <a class="feed-more" id="homeFeedMore" href="#/p/etc-notice">전체 보기</a>
     </div>
-    <div class="feed">
-      <div class="feed-head">
-        <h3 class="section-h">최근 업데이트</h3>
-        <a class="feed-more" href="#/p/etc-update">전체 보기</a>
-      </div>
-      <div class="upd" data-feed="update">
-        ${UPDATES.map(u=>`<div class="upd-row"><span class="tag">${u.tag}</span><span>${u.txt}</span><span class="date">${u.date}</span></div>`).join("")}
-      </div>
+    <div class="upd" data-feed="notice">
+      <div class="upd-row upd-dim">불러오는 중…</div>
+    </div>
+    <div class="upd" data-feed="update" hidden>
+      ${UPDATES.map(u=>`<div class="upd-row"><span class="tag">${u.tag}</span><span>${u.txt}</span><span class="date">${u.date}</span></div>`).join("")}
     </div>
   </div>`;
 }
@@ -1612,6 +1608,11 @@ render();
 .upd-body .meta{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft);}
 .upd-empty{padding:36px 20px;text-align:center;color:var(--ink-soft);font-size:13px;}
 @media (max-width:760px){ .upd-row .ttl{white-space:normal;} }
+.upd-pager{display:flex;align-items:center;justify-content:center;gap:14px;padding:18px 0 4px;}
+.upd-pager .upd-page-btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:var(--radius);padding:7px 14px;font-size:13px;font-weight:600;}
+.upd-pager .upd-page-btn:hover:not(:disabled){background:var(--green-soft);border-color:var(--green);}
+.upd-pager .upd-page-btn:disabled{opacity:.4;cursor:default;}
+.upd-pager .upd-page-num{font-size:13px;color:var(--ink-soft);min-width:56px;text-align:center;}
 </style>
 <script id="discord-sync-script">
 (function(){
@@ -1624,8 +1625,11 @@ render();
   /* ─ 아래는 손대지 않으셔도 됩니다 ─ */
   var 갱신주기 = 5 * 60 * 1000;
   var 메인표시 = 5;
+  var 페이지당 = 10;
   var 데이터 = null, 공지데이터 = null, 실패 = false, 원본HTML = null;
   var 열림노트 = null, 열림공지 = null;
+  var 노트페이지 = 0, 공지페이지 = 0;
+  var 홈피드 = "notice";
   var 그리는중 = false;
 
   /* ── 브라우저에 마지막 목록을 저장해 두고 다음 방문 때 즉시 표시 ── */
@@ -1653,6 +1657,8 @@ render();
   function 대상데이터(){ return 공지인가() ? 공지데이터 : 데이터; }
   function 대상열림(){ return 공지인가() ? 열림공지 : 열림노트; }
   function 열림설정(v){ if(공지인가()) 열림공지 = v; else 열림노트 = v; }
+  function 대상페이지(){ return 공지인가() ? 공지페이지 : 노트페이지; }
+  function 페이지설정(v){ if(공지인가()) 공지페이지 = v; else 노트페이지 = v; }
 
   /* 데이터 내용까지 반영한 지문 — 개수가 같아도 내용이 바뀌면 다시 그린다 */
   function 해시(목록){
@@ -1672,7 +1678,7 @@ render();
   }
 
   function 상태값(){
-    return 현재() + "|" + 대상열림() + "|" + 지문() + "|" + 실패;
+    return 현재() + "|" + 대상열림() + "|" + 대상페이지() + "|" + 지문() + "|" + 실패 + "|" + 홈피드;
   }
 
   function 행(u, i, 펼침){
@@ -1714,19 +1720,49 @@ render();
     } else {
       box.innerHTML = '<div class="upd-row upd-dim">불러오는 중…</div>';
     }
+    box.hidden = ((공지 ? "notice" : "update") !== 홈피드);   // ★ 선택된 탭만 표시
     box.setAttribute("data-upd-key", 상태);   // ★ 다시 그렸다는 표시 (무한 반복 방지)
   }
 
+  /* ── 홈 화면 탭(최근 공지 / 최근 업데이트) 버튼·링크 동기화 ── */
+  function 홈탭동기화(){
+    var 탭들 = document.querySelectorAll("[data-home-feed]");
+    for(var i = 0; i < 탭들.length; i++){
+      var t = 탭들[i];
+      t.classList.toggle("on", t.getAttribute("data-home-feed") === 홈피드);
+    }
+    var 더보기 = document.getElementById("homeFeedMore");
+    if(더보기) 더보기.setAttribute("href", 홈피드 === "notice" ? "#/p/etc-notice" : "#/p/etc-update");
+  }
+
   /* ── 업데이트 노트 / 공지사항 페이지 (같은 형식) ── */
+  function 페이지행(u, 전역i, 열림){
+    return 행(u, 전역i, 열림 === 전역i) + (열림 === 전역i ? 본문(u) : "");
+  }
+
+  function 페이저(총페이지, 현재페이지){
+    if(총페이지 <= 1) return "";
+    return '<div class="upd-pager">'
+      +   '<button type="button" class="upd-page-btn" data-upd-page="prev"' + (현재페이지 <= 0 ? ' disabled' : '') + '>이전</button>'
+      +   '<span class="upd-page-num">' + (현재페이지 + 1) + ' / ' + 총페이지 + '</span>'
+      +   '<button type="button" class="upd-page-btn" data-upd-page="next"' + (현재페이지 >= 총페이지 - 1 ? ' disabled' : '') + '>다음</button>'
+      + '</div>';
+  }
+
   function 노트그리기(c, 상태){
     var 공지 = 공지인가();
     var 목록 = 대상데이터(), 열림 = 대상열림();
     var 이름 = 공지 ? "공지사항" : "업데이트 노트";
     var 본체;
     if(목록 && 목록.length){
-      본체 = '<div class="upd">' + 목록.map(function(u, i){
-        return 행(u, i, 열림 === i) + (열림 === i ? 본문(u) : "");
-      }).join("") + '</div>';
+      var 총페이지 = Math.max(1, Math.ceil(목록.length / 페이지당));
+      var 현재페이지 = Math.min(Math.max(0, 대상페이지()), 총페이지 - 1);
+      if(현재페이지 !== 대상페이지()) 페이지설정(현재페이지);
+      var 시작 = 현재페이지 * 페이지당;
+      var 이번목록 = 목록.slice(시작, 시작 + 페이지당);
+      본체 = '<div class="upd">' + 이번목록.map(function(u, i){
+        return 페이지행(u, 시작 + i, 열림);
+      }).join("") + '</div>' + 페이저(총페이지, 현재페이지);
     } else if(실패){
       본체 = '<div class="upd-empty">' + 이름 + '을(를) 불러오지 못했습니다.<br>잠시 후 다시 시도해 주세요.</div>';
     } else if(목록){
@@ -1762,12 +1798,30 @@ render();
     if(홈인가()){
       var 상자들 = document.querySelectorAll(".upd[data-feed]");
       if(!상자들.length) return;
-      if(상자들[0].getAttribute("data-upd-key") === 상태) return;        // 이미 같은 상태로 그려둠
+      if(상자들[0].getAttribute("data-upd-key") === 상태){ 홈탭동기화(); return; }        // 이미 같은 상태로 그려둠
       그리는중 = true;
-      try{ 메인그리기들(상자들, 상태); } finally { 그리는중 = false; }
+      try{ 메인그리기들(상자들, 상태); 홈탭동기화(); } finally { 그리는중 = false; }
       return;
     }
   }
+
+  /* ── 홈 화면 탭 클릭 (최근 공지 / 최근 업데이트) ── */
+  document.addEventListener("click", function(e){
+    var t = e.target && e.target.closest ? e.target.closest("[data-home-feed]") : null;
+    if(!t || !홈인가()) return;
+    var v = t.getAttribute("data-home-feed");
+    if(v !== 홈피드){ 홈피드 = v; 그리기(); }
+  });
+
+  /* ── 이전/다음 페이지 클릭 ── */
+  document.addEventListener("click", function(e){
+    var p = e.target && e.target.closest ? e.target.closest("[data-upd-page]") : null;
+    if(!p || p.disabled) return;
+    if(!목록페이지()) return;
+    var dir = p.getAttribute("data-upd-page");
+    페이지설정(대상페이지() + (dir === "next" ? 1 : -1));
+    그리기();
+  });
 
   /* ── 제목 클릭 ── */
   document.addEventListener("click", function(e){
